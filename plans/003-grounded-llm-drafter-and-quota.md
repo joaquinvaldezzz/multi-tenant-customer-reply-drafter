@@ -22,35 +22,35 @@
 
 ## Why this matters
 
-The primary value proposition of this application is providing accurate, company-aligned customer replies while preventing hallucinations and enforcing multi-tenant SaaS business limits. This plan implements a streaming server-side endpoint powered by the official `@anthropic-ai/sdk`. It enforces strict context grounding (with a guaranteed fallback if facts are missing) and atomically checks and increments the workspace's monthly draft quota before streaming begins.
+The primary value proposition of this application is providing accurate, company-aligned customer replies while preventing hallucinations and enforcing multi-tenant SaaS business limits. This plan implements a streaming server-side endpoint powered by the Vercel AI SDK (`ai` and `@ai-sdk/anthropic`, ADR 0002). It enforces strict context grounding (with a guaranteed fallback if facts are missing, ADR 0001) and atomically checks and increments the workspace's monthly draft quota via Postgres RPC before streaming begins (ADR 0003).
 
 ## Current state
 
 - Plan 001 set up `workspace_usage` (`draft_count`, `monthly_limit`, `billing_period`) and `kb_entries`.
 - Plan 002 provided CRUD management for knowledge base items.
-- The Anthropic SDK is not yet installed in `package.json`.
+- The AI SDK packages are not yet installed in `package.json`.
 - No LLM endpoint exists under `app/api/`.
 
 ## Commands you will need
 
-| Purpose   | Command                     | Expected on success |
-| --------- | --------------------------- | ------------------- |
-| Install   | `bun add @anthropic-ai/sdk` | exit 0              |
-| Typecheck | `bun x tsc --noEmit`        | exit 0, no errors   |
+| Purpose   | Command                        | Expected on success |
+| --------- | ------------------------------ | ------------------- |
+| Install   | `bun add ai @ai-sdk/anthropic` | exit 0              |
+| Typecheck | `bun x tsc --noEmit`           | exit 0, no errors   |
 
 ## Scope
 
 **In scope**:
 
-- `package.json` (add `@anthropic-ai/sdk`)
-- `lib/ai/anthropic.ts` (server-side Anthropic client initialization)
+- `package.json` (add `ai`, `@ai-sdk/anthropic`)
+- `lib/ai/client.ts` (server-side model client initialization via Vercel AI SDK)
 - `lib/ai/prompts.ts` (system prompt engineering for strict grounding and "not enough info" fallback)
-- `lib/usage/quota.ts` (server-side quota verification and atomic increment function)
+- `lib/usage/quota.ts` (server-side quota verification and atomic increment function via Postgres RPC)
 - `app/api/draft/route.ts` (POST streaming route handler with session auth and rate/quota check)
 
 **Out of scope**:
 
-- Embeddings or vector database search (all KB entries for the workspace are injected directly into context per the deliberate architecture trade-off)
+- Embeddings or vector database search (all KB entries for the workspace are injected directly into context per ADR 0001)
 - Client UI drafting form (handled in Plan 004)
 - Exposing `ANTHROPIC_API_KEY` to client browser code (strictly server-side in `app/api/` and `lib/ai/`)
 

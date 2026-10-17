@@ -30,17 +30,17 @@ Recommended framing: full-stack developer who owns build, test, and release; lea
 
 Multi-tenant customer reply drafter for small businesses.
 
-- Stack: Next.js + TypeScript, Tailwind, Supabase (Postgres, auth, RLS), Anthropic SDK from a server route, deploy on Netlify or Vercel.
-- Features: workspaces and memberships with RLS, owner/member roles, FAQ/policy entries CRUD, streamed draft endpoint grounded only in the entries with a "not enough info" fallback, server-enforced monthly draft limit per workspace.
+- Stack: Next.js + TypeScript, Tailwind, Supabase (Postgres, auth, RLS), Vercel AI SDK (`ai` + `@ai-sdk/anthropic` with Claude 3.5 Sonnet), deploy on Netlify or Vercel.
+- Features: multi-workspace switching per user via HTTP-only cookie, memberships with RLS (owner/member roles), knowledge base entries CRUD (capped at 50 entries, 1,000 characters each), streamed draft endpoint grounded strictly in prompt context with a "not enough info" fallback, atomic monthly quota enforcement (50 drafts/month per workspace via Postgres RPC).
 - Differentiators: Playwright suite for signup-to-draft flow, GitHub Actions CI, Dockerfile, README with architecture section, screenshots, demo login.
-- Deliberate trade-off: no embeddings or vector DB; entries go directly in the prompt. Document this in the README.
+- Deliberate trade-offs: no embeddings or vector DB (direct prompt context injection, documented in ADR 0001); atomic usage counters via RPC (ADR 0003); Vercel AI SDK provider abstraction (ADR 0002).
 - Stretch: Stripe test mode, tone presets, saved-replies history.
 - Timeline: about 7 days (schema/auth/RLS, then CRUD/draft/usage, then tests/CI/Docker, then deploy/README).
 - Hygiene: API key server-side only, small meaningful commits.
 
 ## Open items
 
-- User has not confirmed whether he will build the repo or apply as-is.
+- User confirmed portfolio-first path on 2026-10-17: complete Plans 001-006 before submitting application (Plan 007).
 - Unknown: contents of his GitHub profile, any existing LLM work, whether he can commit to PT hours (assumed yes).
 - Application text (AI summary, repo list, start/hours confirmation) not yet drafted.
 
