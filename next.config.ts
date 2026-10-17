@@ -1,3 +1,5 @@
+import "./lib/env";
+
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -7,6 +9,7 @@ const nextConfig: NextConfig = {
   },
   cacheComponents: true,
   partialPrefetching: true,
+  transpilePackages: ["@t3-oss/env-nextjs", "@t3-oss/env-core"],
   turbopack: {
     rules: {
       "*.css": {
