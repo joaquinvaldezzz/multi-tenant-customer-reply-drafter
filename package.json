@@ -7,7 +7,11 @@
     "dev": "next dev",
     "format": "prettier --write .",
     "lint": "eslint --cache",
+    "prepare": "husky",
     "start": "next start"
+  },
+  "lint-staged": {
+    "*": "prettier --ignore-unknown --write"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -28,6 +32,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
     "prettier": "^3.9.10",
     "prettier-plugin-jsdoc": "^1.8.1",
     "prettier-plugin-tailwindcss": "^0.8.1",
