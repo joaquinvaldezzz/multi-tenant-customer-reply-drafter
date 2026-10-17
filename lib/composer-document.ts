@@ -16,7 +16,7 @@ type ComposerPart =
 type ComposerValue = readonly ComposerPart[];
 type ComposerTokenPart = Exclude<ComposerPart, { type: "text" }>;
 
-type ComposerItemValue = {
+interface ComposerItemValue {
   id: string;
   label: string;
   disabled?: boolean;
@@ -26,9 +26,9 @@ type ComposerItemValue = {
   kind?: string;
   data?: string;
   text?: string;
-};
+}
 
-type ComposerTrigger = {
+interface ComposerTrigger {
   character: string;
   items: readonly ComposerItemValue[];
   status?: "ready" | "loading" | "error";
@@ -37,9 +37,13 @@ type ComposerTrigger = {
   showEmpty?: boolean;
   maxQueryLength?: number;
   filter?: ((item: ComposerItemValue, query: string) => boolean) | null;
-};
+}
 
-type ComposerQuery = { character: string; text: string; key: string };
+interface ComposerQuery {
+  character: string;
+  text: string;
+  key: string;
+}
 
 const queryNodeIds = new WeakMap<Text, number>();
 let nextQueryNodeId = 0;
@@ -342,7 +346,10 @@ function insertItem(
   input.focus({ preventScroll: true });
 }
 
-type ComposerSelection = { anchor: number; focus: number };
+interface ComposerSelection {
+  anchor: number;
+  focus: number;
+}
 
 // Use canonical text offsets so chip labels and their icons do not move the caret.
 function readSelection(input: HTMLElement): ComposerSelection | null {
@@ -408,10 +415,10 @@ function restoreSelection(input: HTMLElement, selection: ComposerSelection | nul
   window.getSelection()?.setBaseAndExtent(anchor, anchorOffset, focus, focusOffset);
 }
 
-type ComposerSnapshot = {
+interface ComposerSnapshot {
   value: ComposerValue;
   selection: ComposerSelection | null;
-};
+}
 
 export {
   type ActiveQuery,

@@ -23,13 +23,13 @@ const TOAST_ICONS = {
 
 type SwipeDirection = "up" | "down" | "left" | "right";
 
-type ToastData = {
+interface ToastData {
   rootProps?: Omit<
     React.ComponentProps<typeof Toast.Root>,
     "children" | "className" | "swipeDirection" | "toast"
   >;
   tooltipStyle?: boolean;
-};
+}
 
 function getSwipeDirection(position: ToastPosition): SwipeDirection[] {
   const verticalDirection: SwipeDirection = position.startsWith("top") ? "up" : "down";
@@ -144,14 +144,14 @@ function Toasts({
             >
               <Toast.Content className="pointer-events-auto flex items-center justify-between gap-1.5 overflow-hidden px-3.5 py-3 text-sm transition-opacity duration-250 data-behind:opacity-0 data-behind:not-data-expanded:pointer-events-none data-expanded:opacity-100">
                 <div className="flex gap-2">
-                  {Icon && (
+                  {Icon ? (
                     <div
                       className="[&_svg]:pointer-events-none [&_svg]:shrink-0 [&>svg]:h-lh [&>svg]:w-4"
                       data-slot="toast-icon"
                     >
                       <Icon className="in-data-[type=error]:text-destructive in-data-[type=info]:text-info in-data-[type=loading]:animate-spin in-data-[type=loading]:opacity-80 in-data-[type=success]:text-success in-data-[type=warning]:text-warning" />
                     </div>
-                  )}
+                  ) : null}
 
                   <div className="flex flex-col gap-0.5">
                     <Toast.Title className="font-medium" data-slot="toast-title" />
@@ -161,11 +161,11 @@ function Toasts({
                     />
                   </div>
                 </div>
-                {toast.actionProps && (
+                {toast.actionProps ? (
                   <Toast.Action className={buttonVariants({ size: "xs" })} data-slot="toast-action">
                     {toast.actionProps.children}
                   </Toast.Action>
-                )}
+                ) : null}
               </Toast.Content>
             </Toast.Root>
           );
@@ -189,7 +189,7 @@ function AnchoredToasts({
           const Icon = toast.type ? TOAST_ICONS[toast.type as keyof typeof TOAST_ICONS] : null;
           const toastData = toast.data as ToastData | undefined;
           const tooltipStyle = toastData?.tooltipStyle ?? false;
-          const positionerProps = toast.positionerProps;
+          const { positionerProps } = toast;
 
           if (!positionerProps?.anchor) {
             return null;
@@ -222,14 +222,14 @@ function AnchoredToasts({
                 ) : (
                   <Toast.Content className="pointer-events-auto flex items-center justify-between gap-1.5 overflow-hidden px-3.5 py-3 text-sm">
                     <div className="flex gap-2">
-                      {Icon && (
+                      {Icon ? (
                         <div
                           className="[&_svg]:pointer-events-none [&_svg]:shrink-0 [&>svg]:h-lh [&>svg]:w-4"
                           data-slot="toast-icon"
                         >
                           <Icon className="in-data-[type=error]:text-destructive in-data-[type=info]:text-info in-data-[type=loading]:animate-spin in-data-[type=loading]:opacity-80 in-data-[type=success]:text-success in-data-[type=warning]:text-warning" />
                         </div>
-                      )}
+                      ) : null}
 
                       <div className="flex flex-col gap-0.5">
                         <Toast.Title className="font-medium" data-slot="toast-title" />
@@ -239,14 +239,14 @@ function AnchoredToasts({
                         />
                       </div>
                     </div>
-                    {toast.actionProps && (
+                    {toast.actionProps ? (
                       <Toast.Action
                         className={buttonVariants({ size: "xs" })}
                         data-slot="toast-action"
                       >
                         {toast.actionProps.children}
                       </Toast.Action>
-                    )}
+                    ) : null}
                   </Toast.Content>
                 )}
               </Toast.Root>

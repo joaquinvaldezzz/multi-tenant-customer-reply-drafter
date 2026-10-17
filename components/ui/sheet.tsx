@@ -103,7 +103,7 @@ export function SheetPopup({
           {...props}
         >
           {children}
-          {showCloseButton && (
+          {showCloseButton ? (
             <SheetPrimitive.Close
               aria-label="Close"
               className="absolute end-2 top-2"
@@ -112,7 +112,7 @@ export function SheetPopup({
             >
               <XIcon />
             </SheetPrimitive.Close>
-          )}
+          ) : null}
         </SheetPrimitive.Popup>
       </SheetViewport>
     </SheetPortal>

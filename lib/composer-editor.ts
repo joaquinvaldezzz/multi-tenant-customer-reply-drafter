@@ -125,8 +125,11 @@ function ComposerEditorProvider({
   );
 }
 
-type RegisteredItem = { element: HTMLElement; disabled: boolean };
-type SuggestionsContextValue = {
+interface RegisteredItem {
+  element: HTMLElement;
+  disabled: boolean;
+}
+interface SuggestionsContextValue {
   items: readonly ComposerItemValue[];
   listId: string;
   highlightedId: string | undefined;
@@ -135,7 +138,7 @@ type SuggestionsContextValue = {
   registerList: (element: HTMLElement | null) => void;
   highlightItem: (value: ComposerItemValue) => void;
   selectItem: (value: ComposerItemValue) => void;
-};
+}
 const ComposerSuggestionsContext: Context<SuggestionsContextValue | null> =
   createContext<SuggestionsContextValue | null>(null);
 function useComposerSuggestionsContext(): SuggestionsContextValue | null {

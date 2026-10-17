@@ -23,12 +23,12 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "@/components/ui/tooltip";
 
-const SIDEBAR_COOKIE_NAME: string = "sidebar_state";
+const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE: number = 60 * 60 * 24 * 7;
-const SIDEBAR_WIDTH: string = "16rem";
-const SIDEBAR_WIDTH_MOBILE: string = "18rem";
-const SIDEBAR_WIDTH_ICON: string = "3rem";
-const SIDEBAR_KEYBOARD_SHORTCUT: string = "b";
+const SIDEBAR_WIDTH = "16rem";
+const SIDEBAR_WIDTH_MOBILE = "18rem";
+const SIDEBAR_WIDTH_ICON = "3rem";
+const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
 const sidebarMenuButtonVariants = cva(
   "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-lg p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pe-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg:not([class*='size-'])]:size-4 [&>svg]:shrink-0",
@@ -52,7 +52,7 @@ const sidebarMenuButtonVariants = cva(
   },
 );
 
-export type SidebarContextProps = {
+export interface SidebarContextProps {
   state: "expanded" | "collapsed";
   open: boolean;
   setOpen: (open: boolean) => void;
@@ -60,7 +60,7 @@ export type SidebarContextProps = {
   setOpenMobile: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
-};
+}
 
 export const SidebarContext: React.Context<SidebarContextProps | null> =
   React.createContext<SidebarContextProps | null>(null);
@@ -115,9 +115,10 @@ export function SidebarProvider({
   );
 
   // Helper to toggle the sidebar.
-  const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
-  }, [isMobile, setOpen]);
+  const toggleSidebar = React.useCallback(
+    async () => (isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)),
+    [isMobile, setOpen],
+  );
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
@@ -638,9 +639,7 @@ export function SidebarMenuSkeleton({
   showIcon?: boolean;
 }): React.ReactElement {
   // Random width between 50 to 90%.
-  const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`;
-  }, []);
+  const width = React.useMemo(() => `${Math.floor(Math.random() * 40) + 50}%`, []);
 
   return (
     <div
@@ -649,7 +648,9 @@ export function SidebarMenuSkeleton({
       data-slot="sidebar-menu-skeleton"
       {...props}
     >
-      {showIcon && <Skeleton className="size-4 rounded-lg" data-sidebar="menu-skeleton-icon" />}
+      {showIcon ? (
+        <Skeleton className="size-4 rounded-lg" data-sidebar="menu-skeleton-icon" />
+      ) : null}
       <Skeleton
         className="h-4 max-w-(--skeleton-width) flex-1"
         data-sidebar="menu-skeleton-text"

@@ -16,9 +16,7 @@ export function Progress({
       data-slot="progress"
       {...props}
     >
-      {children ? (
-        children
-      ) : (
+      {children || (
         <ProgressTrack>
           <ProgressIndicator />
         </ProgressTrack>

@@ -47,12 +47,12 @@ export function SelectButton({
 
   const defaultProps = {
     children: (
-      <>
+      <React.Fragment>
         <span className="flex-1 truncate in-data-placeholder:text-muted-foreground/72">
           {children}
         </span>
         <ChevronsUpDownIcon className={selectTriggerIconClassName} />
-      </>
+      </React.Fragment>
     ),
     className: cn(selectTriggerVariants({ size }), "min-w-0", className),
     "data-slot": "select-button",

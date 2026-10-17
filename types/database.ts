@@ -184,9 +184,7 @@ export interface Database {
         ];
       };
     };
-    Views: {
-      [_ in never]: never;
-    };
+    Views: Record<never, never>;
     Functions: {
       is_workspace_member: {
         Args: { ws_id: string };
@@ -201,8 +199,6 @@ export interface Database {
       workspace_role: WorkspaceRole;
       kb_category: KBCategory;
     };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
+    CompositeTypes: Record<never, never>;
   };
 }

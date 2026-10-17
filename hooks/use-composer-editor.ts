@@ -30,10 +30,10 @@ import {
   writeValue,
 } from "@/lib/composer-document";
 
-type ComposerChangeDetails = {
+interface ComposerChangeDetails {
   reason: "input" | "selection" | "history" | "reset";
-};
-type UseComposerEditorOptions = {
+}
+interface UseComposerEditorOptions {
   value: ComposerValue;
   onValueChange: (value: ComposerValue, details: ComposerChangeDetails) => void;
   onSubmit?: (value: ComposerValue) => void;
@@ -46,9 +46,9 @@ type UseComposerEditorOptions = {
   submitDisabled?: boolean;
   allowEmpty?: boolean;
   submitOnEnter?: "desktop" | "always" | "never";
-};
+}
 
-type ComposerEditorController = {
+interface ComposerEditorController {
   value: ComposerValue;
   inputProps: ComponentProps<"div">;
   formProps: Pick<ComponentProps<"form">, "onSubmit">;
@@ -72,7 +72,7 @@ type ComposerEditorController = {
     onOpenChange: (open: boolean) => void;
     onItemSelect: (item: ComposerItemValue) => void;
   };
-};
+}
 
 export function useComposerEditor({
   value,

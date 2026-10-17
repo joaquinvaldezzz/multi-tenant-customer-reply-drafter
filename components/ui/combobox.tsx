@@ -38,7 +38,7 @@ export function ComboboxChipsInput({
   size?: "sm" | "default" | "lg" | number;
   ref?: React.Ref<HTMLInputElement>;
 }): React.ReactElement {
-  const sizeValue = (size ?? "default") as "sm" | "default" | "lg" | number;
+  const sizeValue = size ?? "default";
 
   return (
     <ComboboxPrimitive.Input
@@ -73,14 +73,14 @@ export function ComboboxInput({
   triggerProps?: ComboboxPrimitive.Trigger.Props;
   clearProps?: ComboboxPrimitive.Clear.Props;
 }): React.ReactElement {
-  const sizeValue = (size ?? "default") as "sm" | "default" | "lg" | number;
+  const sizeValue = size ?? "default";
 
   return (
     <ComboboxPrimitive.InputGroup
       className="relative w-full text-foreground not-has-[>*.w-full]:w-fit has-disabled:opacity-64"
       data-slot="combobox-input-group"
     >
-      {startAddon && (
+      {startAddon ? (
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-y-0 start-px z-10 flex items-center ps-[calc(--spacing(3)-1px)] opacity-80 has-[+[data-size=sm]]:ps-[calc(--spacing(2.5)-1px)] [&_svg]:-mx-0.5 [&_svg:not([class*='size-'])]:size-4.5 sm:[&_svg:not([class*='size-'])]:size-4"
@@ -88,7 +88,7 @@ export function ComboboxInput({
         >
           {startAddon}
         </div>
-      )}
+      ) : null}
       <ComboboxPrimitive.Input
         className={cn(
           startAddon &&
@@ -102,7 +102,7 @@ export function ComboboxInput({
         render={<Input className="has-disabled:opacity-100" nativeInput size={sizeValue} />}
         {...props}
       />
-      {showTrigger && (
+      {showTrigger ? (
         <ComboboxTrigger
           aria-label="Show options"
           className={cn(
@@ -115,8 +115,8 @@ export function ComboboxInput({
             <ChevronsUpDownIcon />
           </ComboboxPrimitive.Icon>
         </ComboboxTrigger>
-      )}
-      {showClear && (
+      ) : null}
+      {showClear ? (
         <ComboboxClear
           aria-label="Clear selection"
           className={cn(
@@ -127,7 +127,7 @@ export function ComboboxInput({
         >
           <XIcon />
         </ComboboxClear>
-      )}
+      ) : null}
     </ComboboxPrimitive.InputGroup>
   );
 }
@@ -357,7 +357,7 @@ export function ComboboxChips({
       ref={chipsRef as React.Ref<HTMLDivElement> | null}
       {...props}
     >
-      {startAddon && (
+      {startAddon ? (
         <div
           aria-hidden="true"
           className="flex shrink-0 items-center ps-2 opacity-80 has-[+[data-slot=combobox-chip]]:pe-2 has-[~[data-size=sm]]:ps-1.5 has-[~[data-size=sm]]:has-[+[data-slot=combobox-chip]]:pe-1.5 [&_svg]:pointer-events-none [&_svg]:-ms-0.5 [&_svg]:-me-1.5 [&_svg:not([class*='size-'])]:size-4.5 sm:[&_svg:not([class*='size-'])]:size-4"
@@ -365,7 +365,7 @@ export function ComboboxChips({
         >
           {startAddon}
         </div>
-      )}
+      ) : null}
       {children}
     </ComboboxPrimitive.Chips>
   );

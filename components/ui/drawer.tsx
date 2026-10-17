@@ -198,7 +198,7 @@ export function DrawerPopup({
           {...props}
         >
           {children}
-          {showCloseButton && (
+          {showCloseButton ? (
             <DrawerPrimitive.Close
               aria-label="Close"
               className="absolute end-2 top-2 z-1"
@@ -206,8 +206,8 @@ export function DrawerPopup({
             >
               <XIcon />
             </DrawerPrimitive.Close>
-          )}
-          {showBar && <DrawerBar />}
+          ) : null}
+          {showBar ? <DrawerBar /> : null}
         </DrawerPrimitive.Popup>
       </DrawerViewport>
     </DrawerPortal>
@@ -524,7 +524,7 @@ export function DrawerMenuCheckboxItem({
       {...props}
     >
       {variant === "switch" ? (
-        <>
+        <React.Fragment>
           <span className="col-start-1 min-w-0 wrap-anywhere">{children}</span>
           <CheckboxPrimitive.Indicator
             className="col-start-2 inline-flex h-[calc(var(--thumb-size)+2px)] w-[calc(var(--thumb-size)*2-2px)] shrink-0 items-center rounded-full p-px inset-shadow-[0_1px_--theme(--color-black/4%)] transition-[background-color,box-shadow] duration-200 outline-none [--thumb-size:--spacing(4)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background data-checked:bg-primary data-disabled:opacity-64 data-unchecked:bg-input sm:[--thumb-size:--spacing(3)]"
@@ -532,9 +532,9 @@ export function DrawerMenuCheckboxItem({
           >
             <span className="pointer-events-none block aspect-square h-full origin-left rounded-(--thumb-size) bg-background shadow-sm/5 will-change-transform [transition:translate_.15s,border-radius_.15s,scale_.1s_.1s,transform-origin_.15s] in-[[data-slot=drawer-menu-checkbox-item]:active]:rounded-[var(--thumb-size)/calc(var(--thumb-size)*1.10)] in-[[data-slot=drawer-menu-checkbox-item]:active]:not-data-disabled:scale-x-110 in-[[data-slot=drawer-menu-checkbox-item][data-checked]]:origin-[var(--thumb-size)_50%] in-[[data-slot=drawer-menu-checkbox-item][data-checked]]:translate-x-[calc(var(--thumb-size)-4px)] rtl:origin-right rtl:in-[[data-slot=drawer-menu-checkbox-item][data-checked]]:origin-left rtl:in-[[data-slot=drawer-menu-checkbox-item][data-checked]]:-translate-x-[calc(var(--thumb-size)-4px)]" />
           </CheckboxPrimitive.Indicator>
-        </>
+        </React.Fragment>
       ) : (
-        <>
+        <React.Fragment>
           <CheckboxPrimitive.Indicator className="col-start-1">
             <svg
               fill="none"
@@ -551,7 +551,7 @@ export function DrawerMenuCheckboxItem({
             </svg>
           </CheckboxPrimitive.Indicator>
           <span className="col-start-2 min-w-0 wrap-anywhere">{children}</span>
-        </>
+        </React.Fragment>
       )}
     </CheckboxPrimitive.Root>
   );
