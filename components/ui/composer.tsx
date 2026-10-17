@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
@@ -65,7 +66,7 @@ function ComposerFrame({
     "data-disabled": editor?.disabled ? "" : undefined,
     "data-readonly": editor?.readOnly ? "" : undefined,
     children: (
-      <React.Fragment>
+      <Fragment>
         {children}
         {name ? (
           <input
@@ -75,7 +76,7 @@ function ComposerFrame({
             disabled={editor?.disabled}
           />
         ) : null}
-      </React.Fragment>
+      </Fragment>
     ),
     className: cn(
       "relative flex min-h-0 min-w-0 cursor-text flex-col rounded-(--composer-radius) border border-input bg-background not-dark:bg-clip-padding pb-[calc(var(--composer-padding)-1px)] text-foreground shadow-xs/5 ring-ring/24 transition-shadow [--composer-radius:var(--radius-xl)] [--composer-max-rows:4] [--composer-padding:--spacing(2)] before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--composer-radius)-1px)] not-data-disabled:not-has-[[data-slot=composer-input]:focus-visible]:not-has-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] has-[[data-slot=composer-input]:focus-visible]:has-aria-invalid:border-destructive/64 has-[[data-slot=composer-input]:focus-visible]:has-aria-invalid:ring-destructive/16 has-[[data-slot=composer-input]:focus-visible]:border-ring has-aria-invalid:border-destructive/36 has-[[data-slot=composer-input]:focus-visible]:shadow-none has-aria-invalid:shadow-none has-[[data-slot=composer-input]:focus-visible]:ring-[3px] aria-invalid:border-destructive/36 aria-invalid:shadow-none data-disabled:opacity-64 data-disabled:shadow-none dark:bg-input/32 dark:aria-invalid:ring-destructive/24 dark:has-aria-invalid:ring-destructive/24 dark:not-data-disabled:not-has-[[data-slot=composer-input]:focus-visible]:not-has-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/6%)] md:[--composer-max-rows:8]",
@@ -167,7 +168,7 @@ export function ComposerInput({
     "data-placeholder": placeholder,
     "aria-placeholder": editor ? placeholder : undefined,
     className: cn(
-      "field-sizing-content wrap-anywhere relative block min-h-[calc(var(--composer-min-rows,1)*1lh+--spacing(2))] w-full min-w-0 resize-none whitespace-pre-wrap border-0 bg-transparent in-[[data-layout=adaptive]:not([data-multiline])]:px-1 px-[calc(--spacing(3)-1px)] py-1 outline-none placeholder:text-muted-foreground/72 data-empty:before:pointer-events-none data-empty:before:absolute data-empty:before:text-muted-foreground/72 data-empty:before:content-[attr(data-placeholder)] md:in-data-[layout=adaptive]:min-h-[calc(var(--composer-min-rows,1)*1lh+--spacing(2))] md:min-h-[calc(var(--composer-min-rows,2)*1lh+--spacing(2))]",
+      "field-sizing-content wrap-anywhere relative block min-h-[calc(var(--composer-min-rows,1)*1lh+(--spacing(2)))] w-full min-w-0 resize-none whitespace-pre-wrap border-0 bg-transparent in-[[data-layout=adaptive]:not([data-multiline])]:px-1 px-[calc(--spacing(3)-1px)] py-1 outline-none placeholder:text-muted-foreground/72 data-empty:before:pointer-events-none data-empty:before:absolute data-empty:before:text-muted-foreground/72 data-empty:before:content-[attr(data-placeholder)] md:in-data-[layout=adaptive]:min-h-[calc(var(--composer-min-rows,1)*1lh+(--spacing(2)))] md:min-h-[calc(var(--composer-min-rows,2)*1lh+(--spacing(2)))]",
       className,
     ),
   };
@@ -185,7 +186,7 @@ export function ComposerInput({
     props: mergeProps<"div">(defaultProps, editorProps, inputBehaviorProps, props),
   });
   return (
-    <React.Fragment>
+    <Fragment>
       {/* The drawer reserves keyboard space; its nested input scroller needs no extra bottom padding. */}
       <ScrollArea
         ref={scrollRef}
@@ -214,7 +215,7 @@ export function ComposerInput({
           String(index),
         );
       })}
-    </React.Fragment>
+    </Fragment>
   );
 }
 
@@ -346,7 +347,7 @@ export function ComposerItem({
 > & {
   value?: ComposerItemValue;
 }): ReactElement {
-  const disabled = Boolean(disabledProp || value?.disabled);
+  const disabled = Boolean(disabledProp ?? value?.disabled);
   const item = useComposerItem(value, disabled);
   const { highlighted } = item;
   const defaultProps = {

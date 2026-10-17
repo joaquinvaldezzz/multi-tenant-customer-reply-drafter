@@ -1,9 +1,10 @@
 "use client";
 
+import { Fragment } from "react";
 import { ContextMenu as ContextMenuPrimitive } from "@base-ui/react/context-menu";
 import { ChevronRightIcon } from "lucide-react";
 
-import type * as React from "react";
+import type { ComponentProps, ReactElement } from "react";
 import { cn } from "@/lib/utils";
 
 export const ContextMenu: typeof ContextMenuPrimitive.Root = ContextMenuPrimitive.Root;
@@ -14,7 +15,7 @@ export function ContextMenuTrigger({
   className,
   children,
   ...props
-}: ContextMenuPrimitive.Trigger.Props): React.ReactElement {
+}: ContextMenuPrimitive.Trigger.Props): ReactElement {
   return (
     <ContextMenuPrimitive.Trigger className={className} data-slot="context-menu-trigger" {...props}>
       {children}
@@ -39,7 +40,7 @@ export function ContextMenuPopup({
   side?: ContextMenuPrimitive.Positioner.Props["side"];
   anchor?: ContextMenuPrimitive.Positioner.Props["anchor"];
   portalProps?: ContextMenuPrimitive.Portal.Props;
-}): React.ReactElement {
+}): ReactElement {
   return (
     <ContextMenuPortal {...portalProps}>
       <ContextMenuPrimitive.Positioner
@@ -66,7 +67,7 @@ export function ContextMenuPopup({
   );
 }
 
-export function ContextMenuGroup(props: ContextMenuPrimitive.Group.Props): React.ReactElement {
+export function ContextMenuGroup(props: ContextMenuPrimitive.Group.Props): ReactElement {
   return <ContextMenuPrimitive.Group data-slot="context-menu-group" {...props} />;
 }
 
@@ -78,7 +79,7 @@ export function ContextMenuItem({
 }: ContextMenuPrimitive.Item.Props & {
   inset?: boolean;
   variant?: "default" | "destructive";
-}): React.ReactElement {
+}): ReactElement {
   return (
     <ContextMenuPrimitive.Item
       className={cn(
@@ -102,7 +103,7 @@ export function ContextMenuLinkItem({
 }: ContextMenuPrimitive.LinkItem.Props & {
   inset?: boolean;
   variant?: "default" | "destructive";
-}): React.ReactElement {
+}): ReactElement {
   return (
     <ContextMenuPrimitive.LinkItem
       className={cn(
@@ -126,7 +127,7 @@ export function ContextMenuCheckboxItem({
   ...props
 }: ContextMenuPrimitive.CheckboxItem.Props & {
   variant?: "default" | "switch";
-}): React.ReactElement {
+}): ReactElement {
   return (
     <ContextMenuPrimitive.CheckboxItem
       checked={checked}
@@ -139,7 +140,7 @@ export function ContextMenuCheckboxItem({
       {...props}
     >
       {variant === "switch" ? (
-        <React.Fragment>
+        <Fragment>
           <span className="col-start-1">{children}</span>
           <ContextMenuPrimitive.CheckboxItemIndicator
             className="inline-flex h-[calc(var(--thumb-size)+2px)] w-[calc(var(--thumb-size)*2-2px)] shrink-0 items-center rounded-full p-px inset-shadow-[0_1px_--theme(--color-black/4%)] transition-[background-color,box-shadow] duration-200 outline-none [--thumb-size:--spacing(4)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background data-checked:bg-primary data-disabled:opacity-64 data-unchecked:bg-input sm:[--thumb-size:--spacing(3)]"
@@ -147,9 +148,9 @@ export function ContextMenuCheckboxItem({
           >
             <span className="pointer-events-none block aspect-square h-full origin-left rounded-(--thumb-size) bg-background shadow-sm/5 will-change-transform [transition:translate_.15s,border-radius_.15s,scale_.1s_.1s,transform-origin_.15s] in-[[data-slot=context-menu-checkbox-item]:active]:rounded-[var(--thumb-size)/calc(var(--thumb-size)*1.10)] in-[[data-slot=context-menu-checkbox-item]:active]:not-data-disabled:scale-x-110 in-[[data-slot=context-menu-checkbox-item][data-checked]]:origin-[var(--thumb-size)_50%] in-[[data-slot=context-menu-checkbox-item][data-checked]]:translate-x-[calc(var(--thumb-size)-4px)] rtl:origin-right rtl:in-[[data-slot=context-menu-checkbox-item][data-checked]]:origin-left rtl:in-[[data-slot=context-menu-checkbox-item][data-checked]]:-translate-x-[calc(var(--thumb-size)-4px)]" />
           </ContextMenuPrimitive.CheckboxItemIndicator>
-        </React.Fragment>
+        </Fragment>
       ) : (
-        <React.Fragment>
+        <Fragment>
           <ContextMenuPrimitive.CheckboxItemIndicator className="col-start-1 -ms-0.5">
             <svg
               aria-hidden="true"
@@ -167,15 +168,13 @@ export function ContextMenuCheckboxItem({
             </svg>
           </ContextMenuPrimitive.CheckboxItemIndicator>
           <span className="col-start-2">{children}</span>
-        </React.Fragment>
+        </Fragment>
       )}
     </ContextMenuPrimitive.CheckboxItem>
   );
 }
 
-export function ContextMenuRadioGroup(
-  props: ContextMenuPrimitive.RadioGroup.Props,
-): React.ReactElement {
+export function ContextMenuRadioGroup(props: ContextMenuPrimitive.RadioGroup.Props): ReactElement {
   return <ContextMenuPrimitive.RadioGroup data-slot="context-menu-radio-group" {...props} />;
 }
 
@@ -183,7 +182,7 @@ export function ContextMenuRadioItem({
   className,
   children,
   ...props
-}: ContextMenuPrimitive.RadioItem.Props): React.ReactElement {
+}: ContextMenuPrimitive.RadioItem.Props): ReactElement {
   return (
     <ContextMenuPrimitive.RadioItem
       className={cn(
@@ -220,7 +219,7 @@ export function ContextMenuGroupLabel({
   ...props
 }: ContextMenuPrimitive.GroupLabel.Props & {
   inset?: boolean;
-}): React.ReactElement {
+}): ReactElement {
   return (
     <ContextMenuPrimitive.GroupLabel
       className={cn(
@@ -237,7 +236,7 @@ export function ContextMenuGroupLabel({
 export function ContextMenuSeparator({
   className,
   ...props
-}: ContextMenuPrimitive.Separator.Props): React.ReactElement {
+}: ContextMenuPrimitive.Separator.Props): ReactElement {
   return (
     <ContextMenuPrimitive.Separator
       className={cn("mx-2 my-1 h-px bg-border", className)}
@@ -247,10 +246,7 @@ export function ContextMenuSeparator({
   );
 }
 
-export function ContextMenuShortcut({
-  className,
-  ...props
-}: React.ComponentProps<"kbd">): React.ReactElement {
+export function ContextMenuShortcut({ className, ...props }: ComponentProps<"kbd">): ReactElement {
   return (
     <kbd
       className={cn(
@@ -263,7 +259,7 @@ export function ContextMenuShortcut({
   );
 }
 
-export function ContextMenuSub(props: ContextMenuPrimitive.SubmenuRoot.Props): React.ReactElement {
+export function ContextMenuSub(props: ContextMenuPrimitive.SubmenuRoot.Props): ReactElement {
   return <ContextMenuPrimitive.SubmenuRoot data-slot="context-menu-sub" {...props} />;
 }
 
@@ -274,7 +270,7 @@ export function ContextMenuSubTrigger({
   ...props
 }: ContextMenuPrimitive.SubmenuTrigger.Props & {
   inset?: boolean;
-}): React.ReactElement {
+}): ReactElement {
   return (
     <ContextMenuPrimitive.SubmenuTrigger
       className={cn(
@@ -301,7 +297,7 @@ export function ContextMenuSubPopup({
   align?: ContextMenuPrimitive.Positioner.Props["align"];
   sideOffset?: ContextMenuPrimitive.Positioner.Props["sideOffset"];
   alignOffset?: ContextMenuPrimitive.Positioner.Props["alignOffset"];
-}): React.ReactElement {
+}): ReactElement {
   const defaultAlignOffset = align !== "center" ? -5 : undefined;
 
   return (

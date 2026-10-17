@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, Fragment, useContext } from "react";
 import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox";
 import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer";
 import { mergeProps } from "@base-ui/react/merge-props";
@@ -9,14 +9,14 @@ import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
 import { useRender } from "@base-ui/react/use-render";
 import { ChevronRightIcon, XIcon } from "lucide-react";
 
-import type React from "react";
+import type { Context, ReactElement } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 type DrawerPosition = "right" | "left" | "top" | "bottom";
 
-const DrawerContext: React.Context<{ position: DrawerPosition }> = createContext<{
+const DrawerContext: Context<{ position: DrawerPosition }> = createContext<{
   position: DrawerPosition;
 }>({
   position: "bottom",
@@ -37,7 +37,7 @@ export function Drawer({
   ...props
 }: DrawerPrimitive.Root.Props & {
   position?: DrawerPosition;
-}): React.ReactElement {
+}): ReactElement {
   return (
     <DrawerContext.Provider value={{ position }}>
       <DrawerPrimitive.Root swipeDirection={swipeDirection ?? directionMap[position]} {...props} />
@@ -47,11 +47,11 @@ export function Drawer({
 
 export const DrawerPortal: typeof DrawerPrimitive.Portal = DrawerPrimitive.Portal;
 
-export function DrawerTrigger(props: DrawerPrimitive.Trigger.Props): React.ReactElement {
+export function DrawerTrigger(props: DrawerPrimitive.Trigger.Props): ReactElement {
   return <DrawerPrimitive.Trigger data-slot="drawer-trigger" {...props} />;
 }
 
-export function DrawerClose(props: DrawerPrimitive.Close.Props): React.ReactElement {
+export function DrawerClose(props: DrawerPrimitive.Close.Props): ReactElement {
   return <DrawerPrimitive.Close data-slot="drawer-close" {...props} />;
 }
 
@@ -61,7 +61,7 @@ export function DrawerSwipeArea({
   ...props
 }: DrawerPrimitive.SwipeArea.Props & {
   position?: DrawerPosition;
-}): React.ReactElement {
+}): ReactElement {
   const { position: contextPosition } = useContext(DrawerContext);
   const position = positionProp ?? contextPosition;
 
@@ -84,7 +84,7 @@ export function DrawerSwipeArea({
 export function DrawerBackdrop({
   className,
   ...props
-}: DrawerPrimitive.Backdrop.Props): React.ReactElement {
+}: DrawerPrimitive.Backdrop.Props): ReactElement {
   return (
     <DrawerPrimitive.Backdrop
       className={cn(
@@ -105,7 +105,7 @@ export function DrawerViewport({
 }: DrawerPrimitive.Viewport.Props & {
   position?: DrawerPosition;
   variant?: "default" | "straight" | "inset";
-}): React.ReactElement {
+}): ReactElement {
   return (
     <DrawerPrimitive.Viewport
       className={cn(
@@ -142,7 +142,7 @@ export function DrawerPopup({
   variant?: "default" | "straight" | "inset";
   showBar?: boolean;
   portalProps?: DrawerPrimitive.Portal.Props;
-}): React.ReactElement {
+}): ReactElement {
   const { position: contextPosition } = useContext(DrawerContext);
   const position = positionProp ?? contextPosition;
 
@@ -159,9 +159,9 @@ export function DrawerPopup({
             position === "top" &&
               "transform-[translateY(var(--drawer-swipe-movement-y))] border-b after:inset-x-0 after:bottom-full after:h-(--bleed) has-data-[slot=drawer-bar]:pb-2 data-ending-style:transform-[translateY(calc(-100%-var(--inset)))] data-starting-style:transform-[translateY(calc(-100%-var(--inset)))]",
             position === "left" &&
-              "w-[calc(100%-(--spacing(12)))] max-w-md transform-[translateX(var(--drawer-swipe-movement-x))] border-e after:inset-y-0 after:end-full after:w-(--bleed) has-data-[slot=drawer-bar]:pe-2 data-ending-style:transform-[translateX(calc(-100%-var(--inset)))] data-starting-style:transform-[translateX(calc(-100%-var(--inset)))]",
+              "w-[calc(100%-(--spacing(12)))] max-w-md transform-[translateX(var(--drawer-swipe-movement-x))] border-e after:inset-y-0 after:inset-e-full after:w-(--bleed) has-data-[slot=drawer-bar]:pe-2 data-ending-style:transform-[translateX(calc(-100%-var(--inset)))] data-starting-style:transform-[translateX(calc(-100%-var(--inset)))]",
             position === "right" &&
-              "col-start-2 w-[calc(100%-(--spacing(12)))] max-w-md transform-[translateX(var(--drawer-swipe-movement-x))] border-s after:inset-y-0 after:start-full after:w-(--bleed) has-data-[slot=drawer-bar]:ps-2 data-ending-style:transform-[translateX(calc(100%+var(--inset)))] data-starting-style:transform-[translateX(calc(100%+var(--inset)))]",
+              "col-start-2 w-[calc(100%-(--spacing(12)))] max-w-md transform-[translateX(var(--drawer-swipe-movement-x))] border-s after:inset-y-0 after:inset-s-full after:w-(--bleed) has-data-[slot=drawer-bar]:ps-2 data-ending-style:transform-[translateX(calc(100%+var(--inset)))] data-starting-style:transform-[translateX(calc(100%+var(--inset)))]",
             variant !== "straight" &&
               cn(
                 position === "bottom" && "rounded-t-2xl",
@@ -201,7 +201,7 @@ export function DrawerPopup({
           {showCloseButton ? (
             <DrawerPrimitive.Close
               aria-label="Close"
-              className="absolute end-2 top-2 z-1"
+              className="absolute inset-e-2 top-2 z-1"
               render={<Button size="icon" variant="ghost" />}
             >
               <XIcon />
@@ -227,7 +227,7 @@ export function DrawerHeader({
   ...props
 }: useRender.ComponentProps<"div"> & {
   allowSelection?: boolean;
-}): React.ReactElement {
+}): ReactElement {
   const defaultProps = {
     className: cn(
       "flex flex-col gap-2 p-6 in-[[data-slot=drawer-popup]:has([data-slot=drawer-panel])]:pb-3 max-sm:pb-4",
@@ -253,15 +253,15 @@ export function DrawerFooter({
 }: useRender.ComponentProps<"div"> & {
   variant?: "default" | "bare";
   allowSelection?: boolean;
-}): React.ReactElement {
+}): ReactElement {
   const defaultProps = {
     className: cn(
       "flex flex-col-reverse gap-2 px-6 pb-(--safe-area-inset-bottom,0px) sm:flex-row sm:justify-end",
       !allowSelection && "cursor-default",
       variant === "default" &&
-        "border-t bg-muted/72 pt-4 pb-[calc(env(safe-area-inset-bottom,0px)+--spacing(4))]",
+        "border-t bg-muted/72 pt-4 pb-[calc(env(safe-area-inset-bottom,0px)+(--spacing(4)))]",
       variant === "bare" &&
-        "in-[[data-slot=drawer-popup]:has([data-slot=drawer-panel])]:pt-3 pt-4 pb-[calc(env(safe-area-inset-bottom,0px)+--spacing(6))]",
+        "in-[[data-slot=drawer-popup]:has([data-slot=drawer-panel])]:pt-3 pt-4 pb-[calc(env(safe-area-inset-bottom,0px)+(--spacing(6)))]",
       className,
     ),
     "data-slot": "drawer-footer",
@@ -274,10 +274,7 @@ export function DrawerFooter({
   });
 }
 
-export function DrawerTitle({
-  className,
-  ...props
-}: DrawerPrimitive.Title.Props): React.ReactElement {
+export function DrawerTitle({ className, ...props }: DrawerPrimitive.Title.Props): ReactElement {
   return (
     <DrawerPrimitive.Title
       className={cn("font-heading text-xl leading-none font-bold", className)}
@@ -290,7 +287,7 @@ export function DrawerTitle({
 export function DrawerDescription({
   className,
   ...props
-}: DrawerPrimitive.Description.Props): React.ReactElement {
+}: DrawerPrimitive.Description.Props): ReactElement {
   return (
     <DrawerPrimitive.Description
       className={cn("text-sm text-muted-foreground", className)}
@@ -311,7 +308,7 @@ export function DrawerPanel({
   scrollFade?: boolean;
   scrollable?: boolean;
   allowSelection?: boolean;
-}): React.ReactElement {
+}): ReactElement {
   const defaultProps = {
     className: cn(
       "p-6 in-[[data-slot=drawer-popup]:has([data-slot=drawer-header])]:pt-1 in-[[data-slot=drawer-popup]:has([data-slot=drawer-footer]:not(.border-t))]:pb-1",
@@ -350,7 +347,7 @@ export function DrawerBar({
   ...props
 }: useRender.ComponentProps<"div"> & {
   position?: DrawerPosition;
-}): React.ReactElement {
+}): ReactElement {
   const { position: contextPosition } = useContext(DrawerContext);
   const position = positionProp ?? contextPosition;
   const horizontal = position === "left" || position === "right";
@@ -381,7 +378,7 @@ export function DrawerMenu({
   className,
   render,
   ...props
-}: useRender.ComponentProps<"nav">): React.ReactElement {
+}: useRender.ComponentProps<"nav">): ReactElement {
   const defaultProps = {
     className: cn("-m-2 flex flex-col", className),
     "data-slot": "drawer-menu",
@@ -402,7 +399,7 @@ export function DrawerMenuItem({
   ...props
 }: useRender.ComponentProps<"button"> & {
   variant?: "default" | "destructive";
-}): React.ReactElement {
+}): ReactElement {
   const defaultProps = {
     className: cn(
       "flex min-h-9 w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1 text-base text-foreground outline-none hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-64 data-[variant=destructive]:text-destructive-foreground sm:min-h-8 sm:text-sm [&>svg:not([class*='opacity-'])]:opacity-80 [&>svg:not([class*='size-'])]:size-4.5 sm:[&>svg:not([class*='size-'])]:size-4 [&>svg]:pointer-events-none [&>svg]:-mx-0.5 [&>svg]:shrink-0",
@@ -425,7 +422,7 @@ export function DrawerMenuSeparator({
   className,
   render,
   ...props
-}: useRender.ComponentProps<"div">): React.ReactElement {
+}: useRender.ComponentProps<"div">): ReactElement {
   const defaultProps = {
     className: cn("mx-2 my-1 h-px bg-border", className),
     "data-slot": "drawer-menu-separator",
@@ -442,7 +439,7 @@ export function DrawerMenuGroup({
   className,
   render,
   ...props
-}: useRender.ComponentProps<"div">): React.ReactElement {
+}: useRender.ComponentProps<"div">): ReactElement {
   const defaultProps = {
     className: cn("flex flex-col", className),
     "data-slot": "drawer-menu-group",
@@ -459,7 +456,7 @@ export function DrawerMenuGroupLabel({
   className,
   render,
   ...props
-}: useRender.ComponentProps<"div">): React.ReactElement {
+}: useRender.ComponentProps<"div">): ReactElement {
   const defaultProps = {
     className: cn("px-2 py-1.5 font-medium text-muted-foreground text-xs", className),
     "data-slot": "drawer-menu-group-label",
@@ -476,7 +473,7 @@ export function DrawerMenuTrigger({
   className,
   children,
   ...props
-}: DrawerPrimitive.Trigger.Props): React.ReactElement {
+}: DrawerPrimitive.Trigger.Props): ReactElement {
   return (
     <DrawerTrigger
       className={cn(
@@ -504,8 +501,8 @@ export function DrawerMenuCheckboxItem({
   ...props
 }: CheckboxPrimitive.Root.Props & {
   variant?: "default" | "switch";
-  render?: React.ReactElement;
-}): React.ReactElement {
+  render?: ReactElement;
+}): ReactElement {
   return (
     <CheckboxPrimitive.Root
       checked={checked}
@@ -524,7 +521,7 @@ export function DrawerMenuCheckboxItem({
       {...props}
     >
       {variant === "switch" ? (
-        <React.Fragment>
+        <Fragment>
           <span className="col-start-1 min-w-0 wrap-anywhere">{children}</span>
           <CheckboxPrimitive.Indicator
             className="col-start-2 inline-flex h-[calc(var(--thumb-size)+2px)] w-[calc(var(--thumb-size)*2-2px)] shrink-0 items-center rounded-full p-px inset-shadow-[0_1px_--theme(--color-black/4%)] transition-[background-color,box-shadow] duration-200 outline-none [--thumb-size:--spacing(4)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background data-checked:bg-primary data-disabled:opacity-64 data-unchecked:bg-input sm:[--thumb-size:--spacing(3)]"
@@ -532,9 +529,9 @@ export function DrawerMenuCheckboxItem({
           >
             <span className="pointer-events-none block aspect-square h-full origin-left rounded-(--thumb-size) bg-background shadow-sm/5 will-change-transform [transition:translate_.15s,border-radius_.15s,scale_.1s_.1s,transform-origin_.15s] in-[[data-slot=drawer-menu-checkbox-item]:active]:rounded-[var(--thumb-size)/calc(var(--thumb-size)*1.10)] in-[[data-slot=drawer-menu-checkbox-item]:active]:not-data-disabled:scale-x-110 in-[[data-slot=drawer-menu-checkbox-item][data-checked]]:origin-[var(--thumb-size)_50%] in-[[data-slot=drawer-menu-checkbox-item][data-checked]]:translate-x-[calc(var(--thumb-size)-4px)] rtl:origin-right rtl:in-[[data-slot=drawer-menu-checkbox-item][data-checked]]:origin-left rtl:in-[[data-slot=drawer-menu-checkbox-item][data-checked]]:-translate-x-[calc(var(--thumb-size)-4px)]" />
           </CheckboxPrimitive.Indicator>
-        </React.Fragment>
+        </Fragment>
       ) : (
-        <React.Fragment>
+        <Fragment>
           <CheckboxPrimitive.Indicator className="col-start-1">
             <svg
               fill="none"
@@ -551,7 +548,7 @@ export function DrawerMenuCheckboxItem({
             </svg>
           </CheckboxPrimitive.Indicator>
           <span className="col-start-2 min-w-0 wrap-anywhere">{children}</span>
-        </React.Fragment>
+        </Fragment>
       )}
     </CheckboxPrimitive.Root>
   );
@@ -560,7 +557,7 @@ export function DrawerMenuCheckboxItem({
 export function DrawerMenuRadioGroup({
   className,
   ...props
-}: RadioGroupPrimitive.Props): React.ReactElement {
+}: RadioGroupPrimitive.Props): ReactElement {
   return (
     <RadioGroupPrimitive
       className={cn("flex flex-col", className)}
@@ -579,8 +576,8 @@ export function DrawerMenuRadioItem({
   ...props
 }: RadioPrimitive.Root.Props & {
   value: string;
-  render?: React.ReactElement;
-}): React.ReactElement {
+  render?: ReactElement;
+}): ReactElement {
   return (
     <RadioPrimitive.Root
       className={cn(

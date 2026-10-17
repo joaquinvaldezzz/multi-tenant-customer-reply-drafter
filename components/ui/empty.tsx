@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { cva } from "class-variance-authority";
 
 import type { VariantProps } from "class-variance-authority";
@@ -58,7 +59,7 @@ export function EmptyMedia({
       {...props}
     >
       {variant === "icon" && (
-        <React.Fragment>
+        <Fragment>
           <div
             aria-hidden="true"
             className={cn(
@@ -73,7 +74,7 @@ export function EmptyMedia({
               "pointer-events-none absolute bottom-px origin-bottom-right translate-x-0.5 scale-84 rotate-10 shadow-none",
             )}
           />
-        </React.Fragment>
+        </Fragment>
       )}
       <div className={cn(emptyMediaVariants({ className, variant }))} {...props} />
     </div>

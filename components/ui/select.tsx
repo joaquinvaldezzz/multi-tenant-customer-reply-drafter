@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { Select as SelectPrimitive } from "@base-ui/react/select";
 import { useRender } from "@base-ui/react/use-render";
@@ -7,7 +8,7 @@ import { cva } from "class-variance-authority";
 import { ChevronDownIcon, ChevronsUpDownIcon, ChevronUpIcon } from "lucide-react";
 
 import type { VariantProps } from "class-variance-authority";
-import type * as React from "react";
+import type { ReactElement } from "react";
 import { cn } from "@/lib/utils";
 
 export const Select: typeof SelectPrimitive.Root = SelectPrimitive.Root;
@@ -47,12 +48,12 @@ export function SelectButton({
 
   const defaultProps = {
     children: (
-      <React.Fragment>
+      <Fragment>
         <span className="flex-1 truncate in-data-placeholder:text-muted-foreground/72">
           {children}
         </span>
         <ChevronsUpDownIcon className={selectTriggerIconClassName} />
-      </React.Fragment>
+      </Fragment>
     ),
     className: cn(selectTriggerVariants({ size }), "min-w-0", className),
     "data-slot": "select-button",
@@ -71,7 +72,7 @@ export function SelectTrigger({
   size = "default",
   children,
   ...props
-}: SelectPrimitive.Trigger.Props & VariantProps<typeof selectTriggerVariants>): React.ReactElement {
+}: SelectPrimitive.Trigger.Props & VariantProps<typeof selectTriggerVariants>): ReactElement {
   return (
     <SelectPrimitive.Trigger
       className={cn(selectTriggerVariants({ size }), className)}
@@ -86,10 +87,7 @@ export function SelectTrigger({
   );
 }
 
-export function SelectValue({
-  className,
-  ...props
-}: SelectPrimitive.Value.Props): React.ReactElement {
+export function SelectValue({ className, ...props }: SelectPrimitive.Value.Props): ReactElement {
   return (
     <SelectPrimitive.Value
       className={cn("flex-1 truncate data-placeholder:text-muted-foreground", className)}
@@ -118,7 +116,7 @@ export function SelectPopup({
   alignOffset?: SelectPrimitive.Positioner.Props["alignOffset"];
   alignItemWithTrigger?: SelectPrimitive.Positioner.Props["alignItemWithTrigger"];
   anchor?: SelectPrimitive.Positioner.Props["anchor"];
-}): React.ReactElement {
+}): ReactElement {
   return (
     <SelectPrimitive.Portal {...portalProps}>
       <SelectPrimitive.Positioner
@@ -166,7 +164,7 @@ export function SelectItem({
   className,
   children,
   ...props
-}: SelectPrimitive.Item.Props): React.ReactElement {
+}: SelectPrimitive.Item.Props): ReactElement {
   return (
     <SelectPrimitive.Item
       className={cn(
@@ -202,7 +200,7 @@ export function SelectItem({
 export function SelectSeparator({
   className,
   ...props
-}: SelectPrimitive.Separator.Props): React.ReactElement {
+}: SelectPrimitive.Separator.Props): ReactElement {
   return (
     <SelectPrimitive.Separator
       className={cn("mx-2 my-1 h-px bg-border", className)}
@@ -212,14 +210,11 @@ export function SelectSeparator({
   );
 }
 
-export function SelectGroup(props: SelectPrimitive.Group.Props): React.ReactElement {
+export function SelectGroup(props: SelectPrimitive.Group.Props): ReactElement {
   return <SelectPrimitive.Group data-slot="select-group" {...props} />;
 }
 
-export function SelectLabel({
-  className,
-  ...props
-}: SelectPrimitive.Label.Props): React.ReactElement {
+export function SelectLabel({ className, ...props }: SelectPrimitive.Label.Props): ReactElement {
   return (
     <SelectPrimitive.Label
       className={cn(
@@ -232,7 +227,7 @@ export function SelectLabel({
   );
 }
 
-export function SelectGroupLabel(props: SelectPrimitive.GroupLabel.Props): React.ReactElement {
+export function SelectGroupLabel(props: SelectPrimitive.GroupLabel.Props): ReactElement {
   return (
     <SelectPrimitive.GroupLabel
       className="px-2 py-1.5 text-xs font-medium text-muted-foreground"

@@ -1,9 +1,10 @@
 "use client";
 
+import { Fragment } from "react";
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 import { ChevronRightIcon } from "lucide-react";
 
-import type * as React from "react";
+import type { ComponentProps, ReactElement } from "react";
 import { cn } from "@/lib/utils";
 
 export const MenuCreateHandle: typeof MenuPrimitive.createHandle = MenuPrimitive.createHandle;
@@ -16,7 +17,7 @@ export function MenuTrigger({
   className,
   children,
   ...props
-}: MenuPrimitive.Trigger.Props): React.ReactElement {
+}: MenuPrimitive.Trigger.Props): ReactElement {
   return (
     <MenuPrimitive.Trigger className={className} data-slot="menu-trigger" {...props}>
       {children}
@@ -41,7 +42,7 @@ export function MenuPopup({
   side?: MenuPrimitive.Positioner.Props["side"];
   anchor?: MenuPrimitive.Positioner.Props["anchor"];
   portalProps?: MenuPrimitive.Portal.Props;
-}): React.ReactElement {
+}): ReactElement {
   return (
     <MenuPortal {...portalProps}>
       <MenuPrimitive.Positioner
@@ -68,7 +69,7 @@ export function MenuPopup({
   );
 }
 
-export function MenuGroup(props: MenuPrimitive.Group.Props): React.ReactElement {
+export function MenuGroup(props: MenuPrimitive.Group.Props): ReactElement {
   return <MenuPrimitive.Group data-slot="menu-group" {...props} />;
 }
 
@@ -80,7 +81,7 @@ export function MenuItem({
 }: MenuPrimitive.Item.Props & {
   inset?: boolean;
   variant?: "default" | "destructive";
-}): React.ReactElement {
+}): ReactElement {
   return (
     <MenuPrimitive.Item
       className={cn(
@@ -104,7 +105,7 @@ export function MenuLinkItem({
 }: MenuPrimitive.LinkItem.Props & {
   inset?: boolean;
   variant?: "default" | "destructive";
-}): React.ReactElement {
+}): ReactElement {
   return (
     <MenuPrimitive.LinkItem
       className={cn(
@@ -128,7 +129,7 @@ export function MenuCheckboxItem({
   ...props
 }: MenuPrimitive.CheckboxItem.Props & {
   variant?: "default" | "switch";
-}): React.ReactElement {
+}): ReactElement {
   return (
     <MenuPrimitive.CheckboxItem
       checked={checked}
@@ -141,7 +142,7 @@ export function MenuCheckboxItem({
       {...props}
     >
       {variant === "switch" ? (
-        <React.Fragment>
+        <Fragment>
           <span className="col-start-1">{children}</span>
           <MenuPrimitive.CheckboxItemIndicator
             className="inline-flex h-[calc(var(--thumb-size)+2px)] w-[calc(var(--thumb-size)*2-2px)] shrink-0 items-center rounded-full p-px inset-shadow-[0_1px_--theme(--color-black/4%)] transition-[background-color,box-shadow] duration-200 outline-none [--thumb-size:--spacing(4)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background data-checked:bg-primary data-disabled:opacity-64 data-unchecked:bg-input sm:[--thumb-size:--spacing(3)]"
@@ -149,9 +150,9 @@ export function MenuCheckboxItem({
           >
             <span className="pointer-events-none block aspect-square h-full origin-left rounded-(--thumb-size) bg-background shadow-sm/5 will-change-transform [transition:translate_.15s,border-radius_.15s,scale_.1s_.1s,transform-origin_.15s] in-[[data-slot=menu-checkbox-item]:active]:rounded-[var(--thumb-size)/calc(var(--thumb-size)*1.10)] in-[[data-slot=menu-checkbox-item]:active]:not-data-disabled:scale-x-110 in-[[data-slot=menu-checkbox-item][data-checked]]:origin-[var(--thumb-size)_50%] in-[[data-slot=menu-checkbox-item][data-checked]]:translate-x-[calc(var(--thumb-size)-4px)] rtl:origin-right rtl:in-[[data-slot=menu-checkbox-item][data-checked]]:origin-left rtl:in-[[data-slot=menu-checkbox-item][data-checked]]:-translate-x-[calc(var(--thumb-size)-4px)]" />
           </MenuPrimitive.CheckboxItemIndicator>
-        </React.Fragment>
+        </Fragment>
       ) : (
-        <React.Fragment>
+        <Fragment>
           <MenuPrimitive.CheckboxItemIndicator className="col-start-1 -ms-0.5">
             <svg
               aria-hidden="true"
@@ -169,13 +170,13 @@ export function MenuCheckboxItem({
             </svg>
           </MenuPrimitive.CheckboxItemIndicator>
           <span className="col-start-2">{children}</span>
-        </React.Fragment>
+        </Fragment>
       )}
     </MenuPrimitive.CheckboxItem>
   );
 }
 
-export function MenuRadioGroup(props: MenuPrimitive.RadioGroup.Props): React.ReactElement {
+export function MenuRadioGroup(props: MenuPrimitive.RadioGroup.Props): ReactElement {
   return <MenuPrimitive.RadioGroup data-slot="menu-radio-group" {...props} />;
 }
 
@@ -183,7 +184,7 @@ export function MenuRadioItem({
   className,
   children,
   ...props
-}: MenuPrimitive.RadioItem.Props): React.ReactElement {
+}: MenuPrimitive.RadioItem.Props): ReactElement {
   return (
     <MenuPrimitive.RadioItem
       className={cn(
@@ -220,7 +221,7 @@ export function MenuGroupLabel({
   ...props
 }: MenuPrimitive.GroupLabel.Props & {
   inset?: boolean;
-}): React.ReactElement {
+}): ReactElement {
   return (
     <MenuPrimitive.GroupLabel
       className={cn(
@@ -237,7 +238,7 @@ export function MenuGroupLabel({
 export function MenuSeparator({
   className,
   ...props
-}: MenuPrimitive.Separator.Props): React.ReactElement {
+}: MenuPrimitive.Separator.Props): ReactElement {
   return (
     <MenuPrimitive.Separator
       className={cn("mx-2 my-1 h-px bg-border", className)}
@@ -247,10 +248,7 @@ export function MenuSeparator({
   );
 }
 
-export function MenuShortcut({
-  className,
-  ...props
-}: React.ComponentProps<"kbd">): React.ReactElement {
+export function MenuShortcut({ className, ...props }: ComponentProps<"kbd">): ReactElement {
   return (
     <kbd
       className={cn(
@@ -263,7 +261,7 @@ export function MenuShortcut({
   );
 }
 
-export function MenuSub(props: MenuPrimitive.SubmenuRoot.Props): React.ReactElement {
+export function MenuSub(props: MenuPrimitive.SubmenuRoot.Props): ReactElement {
   return <MenuPrimitive.SubmenuRoot data-slot="menu-sub" {...props} />;
 }
 
@@ -274,7 +272,7 @@ export function MenuSubTrigger({
   ...props
 }: MenuPrimitive.SubmenuTrigger.Props & {
   inset?: boolean;
-}): React.ReactElement {
+}): ReactElement {
   return (
     <MenuPrimitive.SubmenuTrigger
       className={cn(
@@ -301,7 +299,7 @@ export function MenuSubPopup({
   align?: MenuPrimitive.Positioner.Props["align"];
   sideOffset?: MenuPrimitive.Positioner.Props["sideOffset"];
   alignOffset?: MenuPrimitive.Positioner.Props["alignOffset"];
-}): React.ReactElement {
+}): ReactElement {
   const defaultAlignOffset = align !== "center" ? -5 : undefined;
 
   return (
