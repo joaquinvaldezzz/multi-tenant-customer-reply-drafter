@@ -1,0 +1,33 @@
+{
+  "printWidth": 100,
+  "plugins": [
+    "@prettier/plugin-oxc",
+    "@ianvs/prettier-plugin-sort-imports",
+    "prettier-plugin-jsdoc",
+    "prettier-plugin-tailwindcss"
+  ],
+  "importOrder": [
+    "<BUILTIN_MODULES>",
+    "^(react/(.*)$)|^(react$)",
+    "^(next/(.*)$)|^(next$)",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "<TYPES>",
+    "<TYPES>^@/types/(.*)$",
+    "^@/config/(.*)$",
+    "^@/lib/(.*)$",
+    "^@/hooks/(.*)$",
+    "^@/components/ui/(.*)$",
+    "^@/components/(.*)$",
+    "^@/styles/(.*)$",
+    "^@/app/(.*)$",
+    "^@/content/(.*)$",
+    "^@/public/(.*)$",
+    "",
+    "<TYPES>^[./]",
+    "^[./]"
+  ],
+  "tailwindAttributes": [],
+  "tailwindStylesheet": "app/globals.css",
+  "tailwindFunctions": []
+}
