@@ -233,16 +233,11 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
+
   code,
   kbd,
   samp,
   pre {
     font-family: var(--font-mono);
-  }
-  html {
-    @apply font-sans;
   }
 }

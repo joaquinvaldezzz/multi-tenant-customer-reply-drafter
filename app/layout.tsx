@@ -27,18 +27,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
+      className={cn(geistSans.variable, geistMono.variable, inter.variable, interHeading.variable)}
       lang="en"
-      className={cn(
-        "h-full",
-        "antialiased",
-        geistSans.variable,
-        geistMono.variable,
-        "font-sans",
-        inter.variable,
-        interHeading.variable,
-      )}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="relative bg-background text-foreground antialiased">
+        <div className="relative isolate flex min-h-svh flex-col">{children}</div>
+      </body>
     </html>
   );
 }
