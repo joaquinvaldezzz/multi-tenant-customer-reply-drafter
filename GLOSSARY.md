@@ -23,3 +23,7 @@ _Avoid_: Completion, Generation, Response, Message
 **Draft Quota**:
 The monthly allotment of generated drafts permitted per workspace before requests are rejected with status 429.
 _Avoid_: Rate limit, Token cap, Usage allowance
+
+**Fallback Sentinel**:
+A standardized token (`[INSUFFICIENT_KNOWLEDGE]`) prepended by the LLM when existing Knowledge Base Entries lack facts to answer a customer inquiry.
+_Avoid_: Error code, Refusal string, Missing data marker

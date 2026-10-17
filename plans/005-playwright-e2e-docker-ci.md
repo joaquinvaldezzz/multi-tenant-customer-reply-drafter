@@ -97,11 +97,12 @@ Create `e2e/auth-and-draft.spec.ts`:
    - Clicks "Generate Reply".
    - Verifies streamed output card appears and contains confirmation of the 30-day refund window.
 5. Negative test: Inputs ungrounded inquiry ("Do you offer international shipping to Mars?"):
-   - Verifies output contains the grounded fallback message: "I do not have enough information in our company policies to answer this inquiry."
+   - Verifies output contains the grounded fallback sentinel: `[INSUFFICIENT_KNOWLEDGE]`
+   - Verifies UI displays the amber "Missing Policy" warning banner.
 
 Create `e2e/quota-enforcement.spec.ts`:
 
-- Mocks or sets workspace draft count to monthly limit.
+- Sets workspace draft count to monthly limit via test helper.
 - Attempts draft generation.
 - Verifies UI renders 429 limit warning and disables button.
 
@@ -132,7 +133,8 @@ Create `.github/workflows/ci.yml`:
 - Job 2: `docker`:
   - Run `docker build -t customer-reply-drafter:latest .`
 - Job 3: `e2e`:
-  - Run Playwright test suite with Anthropic API mock/stub or test key.
+  - Boot local Supabase test instance (`npx supabase start`, ADR 0005).
+  - Run Playwright test suite against live RLS container with test API key.
 
 **Verify**: Valid YAML structure in `.github/workflows/ci.yml`.
 

@@ -61,44 +61,42 @@ The primary value proposition of this application is providing accurate, company
 
 ## Steps
 
-### Step 1: Install Anthropic SDK
+### Step 1: Install Vercel AI SDK and Anthropic provider
 
-Install `@anthropic-ai/sdk`.
+Install `ai` and `@ai-sdk/anthropic`.
 
 ```bash
-bun add @anthropic-ai/sdk
+bun add ai @ai-sdk/anthropic
 ```
 
 **Verify**: `bun x tsc --noEmit` → exit 0
 
-### Step 2: Implement server-side Anthropic client and prompt builder
+### Step 2: Implement server-side AI client and prompt builder
 
-Create `lib/ai/anthropic.ts`:
+Create `lib/ai/client.ts`:
 
-- Initialize Anthropic client using `process.env.ANTHROPIC_API_KEY`.
-- Validate that the key exists; throw a clear configuration error if missing in server runtime.
+- Initialize Anthropic provider using `@ai-sdk/anthropic`.
+- Validate that `ANTHROPIC_API_KEY` exists; throw a clear configuration error if missing in server runtime.
 
 Create `lib/ai/prompts.ts`:
 
 - Build prompt template containing:
   - Role: You are a professional customer support assistant for a business.
-  - Context: All active FAQ and policy entries for the current workspace.
-  - Strict Grounding Rule: "Answer the customer's inquiry using ONLY the provided FAQ and policy entries. If the provided entries do not contain sufficient information to answer the inquiry accurately and completely, you must respond with: 'I do not have enough information in our company policies to answer this inquiry. Please escalate this request to a team supervisor.'"
+  - Context: All active FAQ and policy entries for the current workspace (capped at 50 entries, 1,000 characters each per ADR 0001).
+  - Strict Grounding Rule: "Answer the customer's inquiry using ONLY the provided FAQ and policy entries. If the provided entries do not contain sufficient information to answer the inquiry accurately and completely, you must prepend '[INSUFFICIENT_KNOWLEDGE]' followed by a polite explanation that company policies do not cover this topic and it has been escalated."
   - Customer Inquiry: The incoming message text.
   - Optional Tone Instruction: e.g. "Professional", "Friendly", "Concise".
 
 **Verify**: `bun x tsc --noEmit` → exit 0
 
-### Step 3: Implement atomic monthly quota check and increment
+### Step 3: Implement atomic monthly quota check and increment via Postgres RPC
 
 Create `lib/usage/quota.ts`:
 
 - Function `checkAndIncrementDraftQuota(supabase, workspaceId)`:
-  1. Determine current billing period (e.g. `2026-10`).
-  2. Query `workspace_usage` for `(workspace_id, billing_period)`.
-  3. If no row exists, insert one with `draft_count = 0, monthly_limit = 50`.
-  4. If `draft_count >= monthly_limit`, return `{ allowed: false, remaining: 0, limit: monthly_limit }`.
-  5. Otherwise, increment `draft_count = draft_count + 1` and return `{ allowed: true, remaining: monthly_limit - (draft_count + 1), limit: monthly_limit }`.
+  1. Call Postgres RPC `increment_workspace_draft_usage(workspace_id, billing_period, monthly_limit)`.
+  2. If the RPC indicates quota exceeded, return `{ allowed: false, remaining: 0, limit: monthly_limit }`.
+  3. Otherwise, return `{ allowed: true, remaining: result.remaining, limit: monthly_limit }`.
 
 **Verify**: `bun x tsc --noEmit` → exit 0
 
@@ -106,14 +104,15 @@ Create `lib/usage/quota.ts`:
 
 Create `app/api/draft/route.ts`:
 
+- Explicit Node.js runtime: `export const runtime = 'nodejs'`.
 - Route: `POST /api/draft`
-- Authenticate request using Supabase server client; return 401 if unauthorized.
+- Authenticate request using Supabase server client (`@supabase/ssr`); return 401 if unauthorized.
 - Validate request body containing `{ workspaceId: string, customerMessage: string, tone?: string }`.
 - Verify user membership in `workspaceId` via Supabase RLS.
 - Run `checkAndIncrementDraftQuota`. If not allowed, return 429 Too Many Requests with JSON payload `{ error: "Monthly draft limit reached. Upgrade plan to continue." }`.
-- Fetch all `kb_entries` for `workspaceId`.
-- Call `anthropic.messages.stream` with `model: "claude-3-5-sonnet-20241022"` or `"claude-3-5-haiku-20241022"` and constructed grounded prompt.
-- Convert stream into a standard Web `Response` with SSE / `text/event-stream` or `ReadableStream`.
+- Fetch all active `kb_entries` for `workspaceId` (up to 50 entries).
+- Call `streamText` from `ai` with `anthropic("claude-3-5-sonnet-latest")` and constructed prompt.
+- Return `result.toDataStreamResponse()`. Draft bodies remain strictly ephemeral (ADR 0004).
 
 **Verify**: `bun x tsc --noEmit` → exit 0
 
@@ -121,15 +120,16 @@ Create `app/api/draft/route.ts`:
 
 - Test route handler rejects unauthenticated requests with 401.
 - Test route handler returns 429 when `draft_count >= monthly_limit`.
-- Test fallback behavior: when KB entries are empty, Claude outputs the exact "not enough information" fallback text.
+- Test fallback behavior: when KB entries are empty, response prepends `[INSUFFICIENT_KNOWLEDGE]`.
 - Verification: `bun x tsc --noEmit` → exit 0.
 
 ## Done criteria
 
-- [ ] `@anthropic-ai/sdk` installed
-- [ ] `lib/ai/anthropic.ts` and `lib/ai/prompts.ts` implemented
-- [ ] `lib/usage/quota.ts` checks and increments usage atomically
-- [ ] `app/api/draft/route.ts` provides authenticated streaming responses with 429 limit guard
+- [ ] `ai` and `@ai-sdk/anthropic` installed
+- [ ] `lib/ai/client.ts` and `lib/ai/prompts.ts` implemented
+- [ ] `lib/usage/quota.ts` checks and increments usage atomically via Postgres RPC
+- [ ] `app/api/draft/route.ts` provides authenticated streaming responses with `export const runtime = 'nodejs'`
+- [ ] Fallback sentinel `[INSUFFICIENT_KNOWLEDGE]` emitted on unknown inquiries
 - [ ] Zero client-side references to `ANTHROPIC_API_KEY`
 - [ ] `bun x tsc --noEmit` exits 0 with zero errors
 - [ ] `plans/README.md` status row updated
