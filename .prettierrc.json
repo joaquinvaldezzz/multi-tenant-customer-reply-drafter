@@ -4,6 +4,7 @@
     "@prettier/plugin-oxc",
     "@ianvs/prettier-plugin-sort-imports",
     "prettier-plugin-jsdoc",
+    "prettier-plugin-packagejson",
     "prettier-plugin-tailwindcss"
   ],
   "importOrder": [
