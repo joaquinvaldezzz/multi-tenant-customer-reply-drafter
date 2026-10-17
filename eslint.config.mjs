@@ -50,7 +50,7 @@ const nextConfig = defineConfig([
       "react/function-component-definition": ["error", { namedComponents: "function-declaration" }],
       "react/jsx-sort-props": "off",
       // "react/no-unknown-property": ["error", { ignore: ["tw"] }],
-      "react/require-default-props": ["error", { functions: "defaultArguments" }],
+      "react/require-default-props": ["error", { functions: "ignore" }],
     },
   },
 ]);
