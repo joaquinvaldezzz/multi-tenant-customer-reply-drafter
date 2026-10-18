@@ -1,120 +1,117 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
 "use client";
 
-import React, { Suspense, useActionState } from "react";
-import Link from "next/link";
+import { startTransition, Suspense, useActionState } from "react";
 import { useSearchParams } from "next/navigation";
-import { AlertCircleIcon, BotIcon } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ShieldAlertIcon } from "lucide-react";
+import { Controller, useForm } from "react-hook-form";
 
+import type { LoginSchema } from "@/lib/validations/auth";
 import { signInAction } from "@/lib/actions/auth";
-import { initialLoginState } from "@/lib/validations/auth";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { initialLoginState, loginSchema } from "@/lib/validations/auth";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardPanel,
+  CardTitle,
+} from "@/components/ui/card";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 
 function LoginForm() {
+  const [, formAction, isPending] = useActionState(signInAction, initialLoginState);
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") ?? "/knowledge-base";
 
-  const [state, formAction, isPending] = useActionState(signInAction, initialLoginState);
+  const form = useForm<LoginSchema>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+    resolver: zodResolver(loginSchema),
+  });
+
+  const handleSubmit = form.handleSubmit((data) => {
+    const formData = new FormData();
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    formData.append("redirectTo", redirectTo);
+
+    startTransition(() => {
+      formAction(formData);
+    });
+  });
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/20 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8 rounded-2xl border bg-card p-8 shadow-xs">
-        <div className="flex flex-col items-center text-center">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs">
-            <BotIcon className="size-6" />
-          </div>
-          <h1 className="mt-4 font-heading text-2xl font-semibold tracking-tight text-foreground">
-            Sign in to ReplyDrafter
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Enter your email and password to access your workspaces
-          </p>
-        </div>
-
-        {Boolean(state.message) && (
-          <Alert variant="error">
-            <AlertCircleIcon className="size-4" />
-            <AlertDescription>{state.message}</AlertDescription>
-          </Alert>
-        )}
-
-        <form className="space-y-4" action={formAction}>
-          <input name="redirectTo" type="hidden" value={redirectTo} />
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-foreground" htmlFor="email">
-              Email address
-            </label>
-            <Input
-              aria-invalid={Boolean(state.errors?.email)}
-              id="email"
+    <div className="flex flex-1 items-center justify-center">
+      <Card className="w-full max-w-xs">
+        <CardHeader className="border-b">
+          <CardTitle>Login to your account</CardTitle>
+          <CardDescription>Enter email and password to login</CardDescription>
+        </CardHeader>
+        <CardPanel>
+          <Form className="flex flex-1 flex-col gap-4" onSubmit={handleSubmit}>
+            <Controller
               name="email"
-              type="email"
-              placeholder="name@company.com"
-              aria-describedby={state.errors?.email ? "email-error" : undefined}
-              required
-              autoComplete="email"
-              disabled={isPending}
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Email address</FieldLabel>
+                  <Input
+                    type="email"
+                    placeholder="Enter your email address"
+                    autoComplete="email"
+                    {...field}
+                  />
+                  <FieldError match={Boolean(fieldState.error)}>
+                    {fieldState.error?.message}
+                  </FieldError>
+                </Field>
+              )}
             />
-            {state.errors?.email?.[0] ? (
-              <p className="text-xs text-destructive" id="email-error">
-                {state.errors.email[0]}
-              </p>
-            ) : null}
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-medium text-foreground" htmlFor="password">
-              Password
-            </label>
-            <Input
-              aria-invalid={Boolean(state.errors?.password)}
-              id="password"
+            <Controller
               name="password"
-              type="password"
-              placeholder="••••••••"
-              aria-describedby={state.errors?.password ? "password-error" : undefined}
-              required
-              autoComplete="current-password"
-              disabled={isPending}
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Password</FieldLabel>
+                  <Input
+                    type="password"
+                    placeholder="Enter your password"
+                    autoComplete="off"
+                    {...field}
+                  />
+                  <FieldError match={Boolean(fieldState.error)}>
+                    {fieldState.error?.message}
+                  </FieldError>
+                </Field>
+              )}
             />
-            {state.errors?.password?.[0] ? (
-              <p className="text-xs text-destructive" id="password-error">
-                {state.errors.password[0]}
-              </p>
-            ) : null}
+            <Button type="submit" disabled={isPending}>
+              Login
+            </Button>
+          </Form>
+        </CardPanel>
+
+        <CardFooter className="border-t">
+          <div className="flex gap-1 text-xs text-muted-foreground">
+            <ShieldAlertIcon className="size-3 h-lh shrink-0" />
+            <p>The information you enter is encrypted and stored securely.</p>
           </div>
-
-          <Button className="w-full" type="submit" disabled={isPending}>
-            {isPending ? "Signing in..." : "Sign in"}
-          </Button>
-        </form>
-
-        <div className="text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
-          <Link
-            className="font-medium text-primary underline-offset-4 hover:underline"
-            href="/signup"
-          >
-            Create an account
-          </Link>
-        </div>
-      </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-muted/20 px-4 py-12 sm:px-6 lg:px-8">
-          <div className="w-full max-w-md space-y-8 rounded-2xl border bg-card p-8 shadow-xs" />
-        </div>
-      }
-    >
+    <Suspense fallback={<Spinner />}>
       <LoginForm />
     </Suspense>
   );

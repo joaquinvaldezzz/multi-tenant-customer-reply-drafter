@@ -90,6 +90,7 @@ const perfectionistConfig = defineConfig([
             "style",
             "id",
             "name",
+            "control",
             "data",
             "src",
             "for",
@@ -127,6 +128,10 @@ const perfectionistConfig = defineConfig([
             {
               groupName: "name",
               elementNamePattern: "name",
+            },
+            {
+              groupName: "control",
+              elementNamePattern: "control",
             },
             {
               groupName: "data",
