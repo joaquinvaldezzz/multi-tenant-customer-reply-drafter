@@ -9,51 +9,41 @@ import { auth } from "@/lib/auth";
 import { loginSchema } from "@/lib/validations/auth";
 
 export async function signInAction(
-  _prevState: LoginActionState,
+  _previousState: LoginActionState,
   formData: FormData,
 ): Promise<LoginActionState> {
-  const rawEmail = formData.get("email");
-  const rawPassword = formData.get("password");
-  const rawRedirectTo = formData.get("redirectTo");
+  const formValues = Object.fromEntries(formData);
+  const parsedData = loginSchema.safeParse(formValues);
 
-  const redirectTo =
-    typeof rawRedirectTo === "string" && rawRedirectTo.startsWith("/")
-      ? rawRedirectTo
-      : "/knowledge-base";
-
-  const validation = loginSchema.safeParse({
-    email: typeof rawEmail === "string" ? rawEmail : "",
-    password: typeof rawPassword === "string" ? rawPassword : "",
-  });
-
-  if (!validation.success) {
+  if (!parsedData.success) {
     return {
-      errors: validation.error.flatten().fieldErrors,
-      message: "Please enter a valid email and password.",
-      success: false,
+      message: "Invalid form data",
+      errors: parsedData.data,
     };
   }
+
+  const { email, password } = parsedData.data;
 
   try {
     await auth.api.signInEmail({
       body: {
-        email: validation.data.email,
-        password: validation.data.password,
+        email,
+        password,
       },
       headers: await headers(),
     });
-  } catch (err) {
-    if (err instanceof APIError || (err && typeof err === "object" && "message" in err)) {
+  } catch (error) {
+    if (error instanceof APIError || (error && typeof error === "object" && "message" in error)) {
       return {
-        message: (err as { message?: string }).message ?? "Invalid email or password",
         success: false,
+        message: (error as { message?: string }).message ?? "Invalid email or password",
       };
     }
     return {
-      message: "An unexpected error occurred during sign in. Please try again.",
       success: false,
+      message: "An unexpected error occurred during sign in. Please try again.",
     };
   }
 
-  return redirect(redirectTo);
+  return redirect("/knowledge-base");
 }
