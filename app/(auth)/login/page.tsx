@@ -69,40 +69,40 @@ function LoginForm() {
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-1.5">
-            <label htmlFor="email" className="text-xs font-medium text-foreground">
+            <label className="text-xs font-medium text-foreground" htmlFor="email">
               Email address
             </label>
             <Input
               id="email"
               type="email"
-              autoComplete="email"
-              required
               placeholder="name@company.com"
               value={email}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
               disabled={loading}
             />
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="password" className="text-xs font-medium text-foreground">
+            <label className="text-xs font-medium text-foreground" htmlFor="password">
               Password
             </label>
             <Input
               id="password"
               type="password"
-              autoComplete="current-password"
-              required
               placeholder="••••••••"
               value={password}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
               disabled={loading}
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading || !email || !password}>
+          <Button className="w-full" type="submit" disabled={loading || !email || !password}>
             {loading ? "Signing in..." : "Sign in"}
           </Button>
         </form>
@@ -110,8 +110,8 @@ function LoginForm() {
         <div className="text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Link
-            href="/signup"
             className="font-medium text-primary underline-offset-4 hover:underline"
+            href="/signup"
           >
             Create an account
           </Link>
