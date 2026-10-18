@@ -1,18 +1,11 @@
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
+import { CalSansText } from "@calcom/cal-sans-ui/text";
+import { CalSansUI } from "@calcom/cal-sans-ui/ui";
 
 import type { Metadata } from "next";
 import { cn } from "@/lib/utils";
 
 import "./globals.css";
-
-const interHeading = Inter({ subsets: ["latin"], variable: "--font-heading" });
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -26,10 +19,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      className={cn(geistSans.variable, geistMono.variable, inter.variable, interHeading.variable)}
-      lang="en"
-    >
+    <html className={cn(CalSansText.variable, CalSansUI.variable, geistMono.variable)} lang="en">
       <body className="relative bg-background text-pretty text-foreground antialiased">
         <div className="relative isolate flex min-h-svh flex-col">{children}</div>
       </body>

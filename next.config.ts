@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
   },
   cacheComponents: true,
   partialPrefetching: true,
-  transpilePackages: ["@t3-oss/env-nextjs", "@t3-oss/env-core"],
+  transpilePackages: ["@calcom/cal-sans-ui", "@t3-oss/env-nextjs", "@t3-oss/env-core"],
   turbopack: {
     rules: {
       "*.css": {

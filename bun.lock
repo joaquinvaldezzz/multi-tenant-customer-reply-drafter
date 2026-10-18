@@ -6,6 +6,7 @@
       "name": "multi-tenant-customer-reply-drafter",
       "dependencies": {
         "@base-ui/react": "^1.9.0",
+        "@calcom/cal-sans-ui": "^1.3.0",
         "@daypicker/react": "^10.0.2",
         "@hookform/resolvers": "^5.9.2",
         "@supabase/ssr": "^0.12.7",
@@ -117,6 +118,8 @@
     "@better-auth/utils": ["@better-auth/utils@0.5.0", "", { "dependencies": { "@noble/hashes": "^2.0.1" } }, "sha512-BL8W4EfIZFwlu0r54m3v1ztjDhu6dDe/amLTm0xybmbZaNgYUqhD3SjpAsnq0q8YD6/ki4iwIgxJNLP/N3TxiA=="],
 
     "@better-fetch/fetch": ["@better-fetch/fetch@1.3.2", "", {}, "sha512-Gs7n99b5tqUC6cQAPbV0uED3IraHB6xQbHLQ/C3l7ZFafHScOx9pQ+DYmP5blbLFShVWLqxNUlI9wi4xU/X+ow=="],
+
+    "@calcom/cal-sans-ui": ["@calcom/cal-sans-ui@1.3.0", "", { "peerDependencies": { "next": ">=13.2.0" }, "optionalPeers": ["next"] }, "sha512-IFrNGB/sMEkUraMc7PnzReRrehR/K+AZREa/3ZIzxJ94FnDxVmE8tINhyK09Pg2hJ+777dgHOPLUWRnAHvuVag=="],
 
     "@commitlint/cli": ["@commitlint/cli@21.2.3", "", { "dependencies": { "@commitlint/config-conventional": "^21.2.3", "@commitlint/format": "^21.2.3", "@commitlint/lint": "^21.2.3", "@commitlint/load": "^21.2.3", "@commitlint/read": "^21.2.3", "@commitlint/types": "^21.2.3", "tinyexec": "^1.0.0", "yargs": "^18.0.0" }, "bin": { "commitlint": "cli.js" } }, "sha512-5yOX6IRjcrIReCxpyAd04hgI/yhUMpVBJ/ouwFV0wk9yx5+fYRDWZWJ5h55Tbedgfol+5m2mU5nqzbB8g3v0vQ=="],
 
