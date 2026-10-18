@@ -422,15 +422,15 @@ Update `app/(dashboard)/layout.tsx`:
 
 ## Done criteria
 
-- [ ] `bun add better-auth` installed and registered in `package.json`
-- [ ] `lib/env.ts` validates `BETTER_AUTH_SECRET`
-- [ ] Better Auth schemas (`user`, `session`, `account`, `verification`) defined in `lib/db/schema/auth.ts`
-- [ ] Better Auth mounted at `app/api/auth/[...all]/route.ts`
-- [ ] Next.js 16 `proxy.ts` verifies session cookie and protects private routes
-- [ ] Server actions resolve user via `getCurrentUser()`
-- [ ] Login (`/login`) and Signup (`/signup`) pages functional with email and password
-- [ ] `bun x tsc --noEmit` exits 0 with zero errors
-- [ ] `plans/README.md` status row updated
+- [x] `bun add better-auth` installed and registered in `package.json`
+- [x] `lib/env.ts` validates `BETTER_AUTH_SECRET`
+- [x] Better Auth schemas (`user`, `session`, `account`, `verification`) defined in `lib/db/schema/auth.ts`
+- [x] Better Auth mounted at `app/api/auth/[...all]/route.ts`
+- [x] Next.js 16 `proxy.ts` verifies session cookie and protects private routes
+- [x] Server actions resolve user via `getCurrentUser()`
+- [x] Login (`/login`) and Signup (`/signup`) pages functional with email and password
+- [x] `bun x tsc --noEmit` exits 0 with zero errors
+- [x] `plans/README.md` status row updated
 
 ## STOP conditions
 
