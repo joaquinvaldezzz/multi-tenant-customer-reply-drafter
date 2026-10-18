@@ -1,8 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { desc, eq } from "drizzle-orm";
 
 import type { KBEntry } from "@/types/database";
+import { db } from "@/lib/db";
+import { kbEntries } from "@/lib/db/schema";
 import { createClient } from "@/lib/supabase/server";
 import { kbEntrySchema, updateKbEntrySchema } from "@/lib/validations/kb";
 
@@ -15,12 +18,24 @@ export interface ActionResult<T = unknown> {
 function extractData(input: FormData | Record<string, unknown>): Record<string, unknown> {
   if (input instanceof FormData) {
     const raw: Record<string, unknown> = {};
-    for (const [key, value] of input.entries()) {
+    Array.from(input.entries()).forEach(([key, value]) => {
       raw[key] = value;
-    }
+    });
     return raw;
   }
   return input;
+}
+
+function toKBEntry(entry: typeof kbEntries.$inferSelect): KBEntry {
+  return {
+    id: entry.id,
+    workspace_id: entry.workspaceId,
+    title: entry.title,
+    content: entry.content,
+    category: entry.category,
+    created_at: entry.createdAt.toISOString(),
+    updated_at: entry.updatedAt.toISOString(),
+  };
 }
 
 export async function createKbEntry(
@@ -34,7 +49,7 @@ export async function createKbEntry(
       return { success: false, error: issue ? issue.message : "Invalid input" };
     }
 
-    const supabase = (await createClient()) as any;
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -44,23 +59,18 @@ export async function createKbEntry(
       return { success: false, error: "Unauthorized: Active user session required" };
     }
 
-    const { data, error } = await supabase
-      .from("kb_entries")
-      .insert({
-        workspace_id: parsed.data.workspaceId,
+    const [inserted] = await db
+      .insert(kbEntries)
+      .values({
+        workspaceId: parsed.data.workspaceId,
         title: parsed.data.title,
         content: parsed.data.content,
         category: parsed.data.category,
       })
-      .select()
-      .single();
-
-    if (error) {
-      return { success: false, error: error.message };
-    }
+      .returning();
 
     revalidatePath("/knowledge-base");
-    return { success: true, data: data as KBEntry };
+    return { success: true, data: toKBEntry(inserted) };
   } catch (err) {
     return {
       success: false,
@@ -81,7 +91,7 @@ export async function updateKbEntry(
       return { success: false, error: issue ? issue.message : "Invalid input" };
     }
 
-    const supabase = (await createClient()) as any;
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -91,24 +101,23 @@ export async function updateKbEntry(
       return { success: false, error: "Unauthorized: Active user session required" };
     }
 
-    const { data, error } = await supabase
-      .from("kb_entries")
-      .update({
-        title: parsed.data.title,
-        content: parsed.data.content,
-        category: parsed.data.category,
-        updated_at: new Date().toISOString(),
+    const [updated] = await db
+      .update(kbEntries)
+      .set({
+        ...(parsed.data.title !== undefined ? { title: parsed.data.title } : {}),
+        ...(parsed.data.content !== undefined ? { content: parsed.data.content } : {}),
+        ...(parsed.data.category !== undefined ? { category: parsed.data.category } : {}),
+        updatedAt: new Date(),
       })
-      .eq("id", id)
-      .select()
-      .single();
+      .where(eq(kbEntries.id, id))
+      .returning();
 
-    if (error) {
-      return { success: false, error: error.message };
+    if (!updated) {
+      return { success: false, error: "Knowledge base entry not found" };
     }
 
     revalidatePath("/knowledge-base");
-    return { success: true, data: data as KBEntry };
+    return { success: true, data: toKBEntry(updated) };
   } catch (err) {
     return {
       success: false,
@@ -119,7 +128,7 @@ export async function updateKbEntry(
 
 export async function deleteKbEntry(id: string): Promise<ActionResult<{ id: string }>> {
   try {
-    const supabase = (await createClient()) as any;
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -129,10 +138,10 @@ export async function deleteKbEntry(id: string): Promise<ActionResult<{ id: stri
       return { success: false, error: "Unauthorized: Active user session required" };
     }
 
-    const { error } = await supabase.from("kb_entries").delete().eq("id", id);
+    const [deleted] = await db.delete(kbEntries).where(eq(kbEntries.id, id)).returning();
 
-    if (error) {
-      return { success: false, error: error.message };
+    if (!deleted) {
+      return { success: false, error: "Knowledge base entry not found" };
     }
 
     revalidatePath("/knowledge-base");
@@ -147,7 +156,7 @@ export async function deleteKbEntry(id: string): Promise<ActionResult<{ id: stri
 
 export async function getKbEntries(workspaceId: string): Promise<ActionResult<KBEntry[]>> {
   try {
-    const supabase = (await createClient()) as any;
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -157,17 +166,12 @@ export async function getKbEntries(workspaceId: string): Promise<ActionResult<KB
       return { success: false, error: "Unauthorized: Active user session required" };
     }
 
-    const { data, error } = await supabase
-      .from("kb_entries")
-      .select("*")
-      .eq("workspace_id", workspaceId)
-      .order("updated_at", { ascending: false });
+    const entries = await db.query.kbEntries.findMany({
+      where: eq(kbEntries.workspaceId, workspaceId),
+      orderBy: [desc(kbEntries.updatedAt)],
+    });
 
-    if (error) {
-      return { success: false, error: error.message };
-    }
-
-    return { success: true, data: (data as KBEntry[]) ?? [] };
+    return { success: true, data: entries.map(toKBEntry) };
   } catch (err) {
     return {
       success: false,
@@ -178,7 +182,7 @@ export async function getKbEntries(workspaceId: string): Promise<ActionResult<KB
 
 export async function getKbEntryById(id: string): Promise<ActionResult<KBEntry>> {
   try {
-    const supabase = (await createClient()) as any;
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -188,20 +192,15 @@ export async function getKbEntryById(id: string): Promise<ActionResult<KBEntry>>
       return { success: false, error: "Unauthorized: Active user session required" };
     }
 
-    const { data, error } = await supabase
-      .from("kb_entries")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
+    const entry = await db.query.kbEntries.findFirst({
+      where: eq(kbEntries.id, id),
+    });
 
-    if (error) {
-      return { success: false, error: error.message };
-    }
-    if (!data) {
+    if (!entry) {
       return { success: false, error: "Knowledge base entry not found" };
     }
 
-    return { success: true, data: data as KBEntry };
+    return { success: true, data: toKBEntry(entry) };
   } catch (err) {
     return {
       success: false,

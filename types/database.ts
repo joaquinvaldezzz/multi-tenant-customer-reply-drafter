@@ -1,7 +1,20 @@
+import type { kbEntries, workspaceMembers, workspaces, workspaceUsage } from "@/lib/db/schema";
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
+
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type WorkspaceRole = "owner" | "member";
 export type KBCategory = "faq" | "policy";
+
+// Drizzle inferred types
+export type WorkspaceSelect = InferSelectModel<typeof workspaces>;
+export type WorkspaceInsertDrizzle = InferInsertModel<typeof workspaces>;
+export type WorkspaceMemberSelect = InferSelectModel<typeof workspaceMembers>;
+export type WorkspaceMemberInsertDrizzle = InferInsertModel<typeof workspaceMembers>;
+export type KBEntrySelect = InferSelectModel<typeof kbEntries>;
+export type KBEntryInsertDrizzle = InferInsertModel<typeof kbEntries>;
+export type WorkspaceUsageSelect = InferSelectModel<typeof workspaceUsage>;
+export type WorkspaceUsageInsertDrizzle = InferInsertModel<typeof workspaceUsage>;
 
 export interface Profile {
   id: string;

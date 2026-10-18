@@ -2,8 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import { and, eq } from "drizzle-orm";
 
 import type { Workspace, WorkspaceMember, WorkspaceRole, WorkspaceUsage } from "@/types/database";
+import { db } from "@/lib/db";
+import { workspaceMembers, workspaces, workspaceUsage } from "@/lib/db/schema";
 import { createClient } from "@/lib/supabase/server";
 
 export interface ActionResult<T = unknown> {
@@ -37,7 +40,7 @@ export async function createWorkspace(
       return { success: false, error: "Workspace name must not exceed 100 characters" };
     }
 
-    const supabase = (await createClient()) as any;
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -50,40 +53,33 @@ export async function createWorkspace(
     const slug = slugify(name);
 
     // 1. Insert workspace
-    const { data: wsData, error: wsError } = await supabase
-      .from("workspaces")
-      .insert({ name, slug })
-      .select()
-      .single();
+    const [insertedWs] = await db.insert(workspaces).values({ name, slug }).returning();
 
-    if (wsError) {
-      return { success: false, error: wsError.message };
-    }
-
-    const newWorkspace = wsData as Workspace;
+    const newWorkspace: Workspace = {
+      id: insertedWs.id,
+      name: insertedWs.name,
+      slug: insertedWs.slug,
+      created_at: insertedWs.createdAt.toISOString(),
+    };
 
     // 2. Insert workspace creator as owner
-    const { error: memberError } = await supabase.from("workspace_members").insert({
-      workspace_id: newWorkspace.id,
-      user_id: user.id,
+    await db.insert(workspaceMembers).values({
+      workspaceId: newWorkspace.id,
+      userId: user.id,
       role: "owner",
     });
 
-    if (memberError) {
-      return { success: false, error: memberError.message };
-    }
-
     // 3. Initialize workspace usage for current billing period (YYYY-MM)
     const currentBillingPeriod = new Date().toISOString().slice(0, 7);
-    const { error: usageError } = await supabase.from("workspace_usage").insert({
-      workspace_id: newWorkspace.id,
-      billing_period: currentBillingPeriod,
-      draft_count: 0,
-      monthly_limit: 50,
-    });
-
-    if (usageError) {
-      console.warn("Failed to initialize workspace usage:", usageError.message);
+    try {
+      await db.insert(workspaceUsage).values({
+        workspaceId: newWorkspace.id,
+        billingPeriod: currentBillingPeriod,
+        draftCount: 0,
+        monthlyLimit: 50,
+      });
+    } catch {
+      // Optional usage record creation failure should not block workspace creation
     }
 
     // 4. Set active workspace cookie
@@ -114,7 +110,7 @@ export async function switchActiveWorkspace(
       return { success: false, error: "Workspace ID is required" };
     }
 
-    const supabase = (await createClient()) as any;
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -125,14 +121,14 @@ export async function switchActiveWorkspace(
     }
 
     // Verify user is a member of this workspace
-    const { data: membership, error: memberCheckError } = await supabase
-      .from("workspace_members")
-      .select("id")
-      .eq("workspace_id", workspaceId)
-      .eq("user_id", user.id)
-      .maybeSingle();
+    const membership = await db.query.workspaceMembers.findFirst({
+      where: and(
+        eq(workspaceMembers.workspaceId, workspaceId),
+        eq(workspaceMembers.userId, user.id),
+      ),
+    });
 
-    if (memberCheckError || !membership) {
+    if (!membership) {
       return { success: false, error: "Access denied: You are not a member of this workspace" };
     }
 
@@ -162,11 +158,11 @@ export async function inviteWorkspaceMember(
 ): Promise<ActionResult<WorkspaceMember>> {
   try {
     const trimmedEmail = email.trim().toLowerCase();
-    if (!trimmedEmail || !trimmedEmail.includes("@")) {
+    if (!trimmedEmail.includes("@")) {
       return { success: false, error: "A valid email address is required" };
     }
 
-    const supabase = (await createClient()) as any;
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -177,11 +173,14 @@ export async function inviteWorkspaceMember(
     }
 
     // Look up user profile by email
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = (await supabase
       .from("profiles")
       .select("id, email")
       .eq("email", trimmedEmail)
-      .maybeSingle();
+      .maybeSingle()) as {
+      data: { id: string; email: string | null } | null;
+      error: Error | null;
+    };
 
     if (profileError || !profile) {
       return {
@@ -191,33 +190,37 @@ export async function inviteWorkspaceMember(
     }
 
     // Check if already a member
-    const { data: existingMember } = await supabase
-      .from("workspace_members")
-      .select("id")
-      .eq("workspace_id", workspaceId)
-      .eq("user_id", profile.id)
-      .maybeSingle();
+    const existingMember = await db.query.workspaceMembers.findFirst({
+      where: and(
+        eq(workspaceMembers.workspaceId, workspaceId),
+        eq(workspaceMembers.userId, profile.id),
+      ),
+    });
 
     if (existingMember) {
       return { success: false, error: "This user is already a member of this workspace" };
     }
 
-    const { data: member, error: insertError } = await supabase
-      .from("workspace_members")
-      .insert({
-        workspace_id: workspaceId,
-        user_id: profile.id,
+    const [member] = await db
+      .insert(workspaceMembers)
+      .values({
+        workspaceId,
+        userId: profile.id,
         role,
       })
-      .select()
-      .single();
-
-    if (insertError) {
-      return { success: false, error: insertError.message };
-    }
+      .returning();
 
     revalidatePath("/workspaces");
-    return { success: true, data: member as WorkspaceMember };
+    return {
+      success: true,
+      data: {
+        id: member.id,
+        workspace_id: member.workspaceId,
+        user_id: member.userId,
+        role: member.role,
+        created_at: member.createdAt.toISOString(),
+      },
+    };
   } catch (err) {
     return {
       success: false,
@@ -249,7 +252,7 @@ export async function getUserWorkspaces(): Promise<
   }>
 > {
   try {
-    const supabase = (await createClient()) as any;
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -262,28 +265,29 @@ export async function getUserWorkspaces(): Promise<
       };
     }
 
-    const { data: members, error: membersError } = await supabase
-      .from("workspace_members")
-      .select("role, workspaces (id, name, slug, created_at)")
-      .eq("user_id", user.id);
+    const members = await db.query.workspaceMembers.findMany({
+      where: eq(workspaceMembers.userId, user.id),
+      with: { workspace: true },
+    });
 
-    if (membersError) {
-      return { success: false, error: membersError.message };
-    }
-
-    const workspaces: WorkspaceWithRole[] = (members || [])
-      .filter((m: any) => m.workspaces)
-      .map((m: any) => ({
-        workspace: m.workspaces as Workspace,
-        role: m.role as WorkspaceRole,
+    const workspacesList: WorkspaceWithRole[] = members
+      .filter((m) => m.workspace)
+      .map((m) => ({
+        workspace: {
+          id: m.workspace.id,
+          name: m.workspace.name,
+          slug: m.workspace.slug,
+          created_at: m.workspace.createdAt.toISOString(),
+        },
+        role: m.role,
       }));
 
     const cookieStore = await cookies();
-    let activeWorkspaceId = cookieStore.get("active_workspace_id")?.value || null;
+    let activeWorkspaceId = cookieStore.get("active_workspace_id")?.value ?? null;
 
-    const isValidActive = workspaces.some((w) => w.workspace.id === activeWorkspaceId);
+    const isValidActive = workspacesList.some((w) => w.workspace.id === activeWorkspaceId);
     if (!isValidActive) {
-      activeWorkspaceId = workspaces.length > 0 ? workspaces[0].workspace.id : null;
+      activeWorkspaceId = workspacesList.length > 0 ? workspacesList[0].workspace.id : null;
       if (activeWorkspaceId) {
         cookieStore.set("active_workspace_id", activeWorkspaceId, {
           path: "/",
@@ -297,7 +301,7 @@ export async function getUserWorkspaces(): Promise<
       success: true,
       data: {
         user: { id: user.id, email: user.email ?? null },
-        workspaces,
+        workspaces: workspacesList,
         activeWorkspaceId,
       },
     };
@@ -313,7 +317,7 @@ export async function getWorkspaceMembers(
   workspaceId: string,
 ): Promise<ActionResult<WorkspaceMemberDetail[]>> {
   try {
-    const supabase = (await createClient()) as any;
+    const supabase = await createClient();
     const {
       data: { user },
       error: authError,
@@ -323,17 +327,29 @@ export async function getWorkspaceMembers(
       return { success: false, error: "Unauthorized: Active user session required" };
     }
 
-    const { data: members, error } = await supabase
+    const { data: members, error } = (await supabase
       .from("workspace_members")
       .select("id, workspace_id, user_id, role, created_at, profiles (email, full_name)")
       .eq("workspace_id", workspaceId)
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: true })) as {
+      data:
+        | {
+            id: string;
+            workspace_id: string;
+            user_id: string;
+            role: WorkspaceRole;
+            created_at: string;
+            profiles: { email: string | null; full_name: string | null } | null;
+          }[]
+        | null;
+      error: Error | null;
+    };
 
     if (error) {
       return { success: false, error: error.message };
     }
 
-    const details: WorkspaceMemberDetail[] = (members || []).map((m: any) => ({
+    const details: WorkspaceMemberDetail[] = (members ?? []).map((m) => ({
       id: m.id,
       workspace_id: m.workspace_id,
       user_id: m.user_id,
@@ -356,20 +372,28 @@ export async function getWorkspaceUsage(
   workspaceId: string,
 ): Promise<ActionResult<WorkspaceUsage | null>> {
   try {
-    const supabase = (await createClient()) as any;
     const currentBillingPeriod = new Date().toISOString().slice(0, 7);
-    const { data, error } = await supabase
-      .from("workspace_usage")
-      .select("*")
-      .eq("workspace_id", workspaceId)
-      .eq("billing_period", currentBillingPeriod)
-      .maybeSingle();
+    const usage = await db.query.workspaceUsage.findFirst({
+      where: and(
+        eq(workspaceUsage.workspaceId, workspaceId),
+        eq(workspaceUsage.billingPeriod, currentBillingPeriod),
+      ),
+    });
 
-    if (error) {
-      return { success: false, error: error.message };
+    if (!usage) {
+      return { success: true, data: null };
     }
 
-    return { success: true, data: (data as WorkspaceUsage) ?? null };
+    const result: WorkspaceUsage = {
+      id: usage.id,
+      workspace_id: usage.workspaceId,
+      billing_period: usage.billingPeriod,
+      draft_count: usage.draftCount,
+      monthly_limit: usage.monthlyLimit,
+      updated_at: usage.updatedAt.toISOString(),
+    };
+
+    return { success: true, data: result };
   } catch (err) {
     return {
       success: false,
