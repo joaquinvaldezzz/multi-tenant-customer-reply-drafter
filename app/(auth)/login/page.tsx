@@ -6,7 +6,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { AlertCircleIcon, BotIcon } from "lucide-react";
 
-import { initialLoginState, signInAction } from "@/lib/actions/auth";
+import { signInAction } from "@/lib/actions/auth";
+import { initialLoginState } from "@/lib/validations/auth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

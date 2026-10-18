@@ -9,3 +9,17 @@ export const loginSchema = z.object({
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
+
+export interface LoginActionState {
+  success?: boolean;
+  message?: string | null;
+  errors?: {
+    email?: string[];
+    password?: string[];
+  };
+}
+
+export const initialLoginState: LoginActionState = {
+  message: null,
+  errors: {},
+};
