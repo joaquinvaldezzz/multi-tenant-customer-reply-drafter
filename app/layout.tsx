@@ -30,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={cn(geistSans.variable, geistMono.variable, inter.variable, interHeading.variable)}
       lang="en"
     >
-      <body className="relative bg-background text-foreground antialiased">
+      <body className="relative bg-background text-pretty text-foreground antialiased">
         <div className="relative isolate flex min-h-svh flex-col">{children}</div>
       </body>
     </html>
