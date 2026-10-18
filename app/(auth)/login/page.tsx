@@ -1,51 +1,21 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 "use client";
 
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useActionState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { AlertCircleIcon, BotIcon } from "lucide-react";
 
-import { authClient } from "@/lib/auth-client";
+import { initialLoginState, signInAction } from "@/lib/actions/auth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") ?? "/knowledge-base";
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-
-    try {
-      const { error: signInError } = await authClient.signIn.email({
-        email,
-        password,
-        callbackURL: redirectTo,
-      });
-
-      if (signInError) {
-        setError(signInError.message ?? "Invalid email or password");
-        setLoading(false);
-        return;
-      }
-
-      router.push(redirectTo);
-      router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to sign in");
-      setLoading(false);
-    }
-  }
+  const [state, formAction, isPending] = useActionState(signInAction, initialLoginState);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/20 px-4 py-12 sm:px-6 lg:px-8">
@@ -62,28 +32,36 @@ function LoginForm() {
           </p>
         </div>
 
-        {Boolean(error) && (
+        {Boolean(state.message) && (
           <Alert variant="error">
             <AlertCircleIcon className="size-4" />
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription>{state.message}</AlertDescription>
           </Alert>
         )}
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <form className="space-y-4" action={formAction}>
+          <input name="redirectTo" type="hidden" value={redirectTo} />
+
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground" htmlFor="email">
               Email address
             </label>
             <Input
+              aria-invalid={Boolean(state.errors?.email)}
               id="email"
+              name="email"
               type="email"
               placeholder="name@company.com"
-              value={email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+              aria-describedby={state.errors?.email ? "email-error" : undefined}
               required
               autoComplete="email"
-              disabled={loading}
+              disabled={isPending}
             />
+            {state.errors?.email?.[0] ? (
+              <p className="text-xs text-destructive" id="email-error">
+                {state.errors.email[0]}
+              </p>
+            ) : null}
           </div>
 
           <div className="space-y-1.5">
@@ -91,19 +69,25 @@ function LoginForm() {
               Password
             </label>
             <Input
+              aria-invalid={Boolean(state.errors?.password)}
               id="password"
+              name="password"
               type="password"
               placeholder="••••••••"
-              value={password}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+              aria-describedby={state.errors?.password ? "password-error" : undefined}
               required
               autoComplete="current-password"
-              disabled={loading}
+              disabled={isPending}
             />
+            {state.errors?.password?.[0] ? (
+              <p className="text-xs text-destructive" id="password-error">
+                {state.errors.password[0]}
+              </p>
+            ) : null}
           </div>
 
-          <Button className="w-full" type="submit" disabled={loading || !email || !password}>
-            {loading ? "Signing in..." : "Sign in"}
+          <Button className="w-full" type="submit" disabled={isPending}>
+            {isPending ? "Signing in..." : "Sign in"}
           </Button>
         </form>
 
