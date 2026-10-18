@@ -5,9 +5,9 @@ import { cookies } from "next/headers";
 import { and, eq } from "drizzle-orm";
 
 import type { Workspace, WorkspaceMember, WorkspaceRole, WorkspaceUsage } from "@/types/database";
+import { getCurrentUser } from "@/lib/auth-session";
 import { db } from "@/lib/db";
-import { workspaceMembers, workspaces, workspaceUsage } from "@/lib/db/schema";
-import { createClient } from "@/lib/supabase/server";
+import { user as userTable, workspaceMembers, workspaces, workspaceUsage } from "@/lib/db/schema";
 
 export interface ActionResult<T = unknown> {
   success: boolean;
@@ -40,13 +40,8 @@ export async function createWorkspace(
       return { success: false, error: "Workspace name must not exceed 100 characters" };
     }
 
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (!user || authError) {
+    const user = await getCurrentUser();
+    if (!user) {
       return { success: false, error: "Unauthorized: Active user session required" };
     }
 
@@ -110,13 +105,8 @@ export async function switchActiveWorkspace(
       return { success: false, error: "Workspace ID is required" };
     }
 
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (!user || authError) {
+    const user = await getCurrentUser();
+    if (!user) {
       return { success: false, error: "Unauthorized: Active user session required" };
     }
 
@@ -162,27 +152,19 @@ export async function inviteWorkspaceMember(
       return { success: false, error: "A valid email address is required" };
     }
 
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (!user || authError) {
+    const user = await getCurrentUser();
+    if (!user) {
       return { success: false, error: "Unauthorized: Active user session required" };
     }
 
     // Look up user profile by email
-    const { data: profile, error: profileError } = (await supabase
-      .from("profiles")
-      .select("id, email")
-      .eq("email", trimmedEmail)
-      .maybeSingle()) as {
-      data: { id: string; email: string | null } | null;
-      error: Error | null;
-    };
+    const [profile] = await db
+      .select({ id: userTable.id, email: userTable.email })
+      .from(userTable)
+      .where(eq(userTable.email, trimmedEmail))
+      .limit(1);
 
-    if (profileError || !profile) {
+    if (!profile) {
       return {
         success: false,
         error: "No registered user found with that email address",
@@ -252,13 +234,8 @@ export async function getUserWorkspaces(): Promise<
   }>
 > {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (!user || authError) {
+    const user = await getCurrentUser();
+    if (!user) {
       return {
         success: true,
         data: { user: null, workspaces: [], activeWorkspaceId: null },
@@ -317,46 +294,34 @@ export async function getWorkspaceMembers(
   workspaceId: string,
 ): Promise<ActionResult<WorkspaceMemberDetail[]>> {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (!user || authError) {
+    const user = await getCurrentUser();
+    if (!user) {
       return { success: false, error: "Unauthorized: Active user session required" };
     }
 
-    const { data: members, error } = (await supabase
-      .from("workspace_members")
-      .select("id, workspace_id, user_id, role, created_at, profiles (email, full_name)")
-      .eq("workspace_id", workspaceId)
-      .order("created_at", { ascending: true })) as {
-      data:
-        | {
-            id: string;
-            workspace_id: string;
-            user_id: string;
-            role: WorkspaceRole;
-            created_at: string;
-            profiles: { email: string | null; full_name: string | null } | null;
-          }[]
-        | null;
-      error: Error | null;
-    };
+    const members = await db
+      .select({
+        id: workspaceMembers.id,
+        workspaceId: workspaceMembers.workspaceId,
+        userId: workspaceMembers.userId,
+        role: workspaceMembers.role,
+        createdAt: workspaceMembers.createdAt,
+        email: userTable.email,
+        fullName: userTable.name,
+      })
+      .from(workspaceMembers)
+      .leftJoin(userTable, eq(workspaceMembers.userId, userTable.id))
+      .where(eq(workspaceMembers.workspaceId, workspaceId))
+      .orderBy(workspaceMembers.createdAt);
 
-    if (error) {
-      return { success: false, error: error.message };
-    }
-
-    const details: WorkspaceMemberDetail[] = (members ?? []).map((m) => ({
+    const details: WorkspaceMemberDetail[] = members.map((m) => ({
       id: m.id,
-      workspace_id: m.workspace_id,
-      user_id: m.user_id,
+      workspace_id: m.workspaceId,
+      user_id: m.userId,
       role: m.role,
-      created_at: m.created_at,
-      email: m.profiles?.email ?? null,
-      full_name: m.profiles?.full_name ?? null,
+      created_at: m.createdAt.toISOString(),
+      email: m.email ?? null,
+      full_name: m.fullName ?? null,
     }));
 
     return { success: true, data: details };

@@ -27,6 +27,7 @@ import {
   getUserWorkspaces,
   switchActiveWorkspace,
 } from "@/lib/actions/workspaces";
+import { authClient } from "@/lib/auth-client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -91,6 +92,7 @@ function DashboardHeader({
   onOpenCreateDialog: () => void;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const navLinks = [
     {
@@ -205,6 +207,16 @@ function DashboardHeader({
               <span className="max-w-40 truncate">{user.email}</span>
             </div>
           )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              await authClient.signOut();
+              router.push("/login");
+            }}
+          >
+            Sign Out
+          </Button>
         </div>
       </div>
 

@@ -4,9 +4,9 @@ import { revalidatePath } from "next/cache";
 import { desc, eq } from "drizzle-orm";
 
 import type { KBEntry } from "@/types/database";
+import { getCurrentUser } from "@/lib/auth-session";
 import { db } from "@/lib/db";
 import { kbEntries } from "@/lib/db/schema";
-import { createClient } from "@/lib/supabase/server";
 import { kbEntrySchema, updateKbEntrySchema } from "@/lib/validations/kb";
 
 export interface ActionResult<T = unknown> {
@@ -49,13 +49,8 @@ export async function createKbEntry(
       return { success: false, error: issue ? issue.message : "Invalid input" };
     }
 
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (!user || authError) {
+    const user = await getCurrentUser();
+    if (!user) {
       return { success: false, error: "Unauthorized: Active user session required" };
     }
 
@@ -91,13 +86,8 @@ export async function updateKbEntry(
       return { success: false, error: issue ? issue.message : "Invalid input" };
     }
 
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (!user || authError) {
+    const user = await getCurrentUser();
+    if (!user) {
       return { success: false, error: "Unauthorized: Active user session required" };
     }
 
@@ -128,13 +118,8 @@ export async function updateKbEntry(
 
 export async function deleteKbEntry(id: string): Promise<ActionResult<{ id: string }>> {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (!user || authError) {
+    const user = await getCurrentUser();
+    if (!user) {
       return { success: false, error: "Unauthorized: Active user session required" };
     }
 
@@ -156,13 +141,8 @@ export async function deleteKbEntry(id: string): Promise<ActionResult<{ id: stri
 
 export async function getKbEntries(workspaceId: string): Promise<ActionResult<KBEntry[]>> {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (!user || authError) {
+    const user = await getCurrentUser();
+    if (!user) {
       return { success: false, error: "Unauthorized: Active user session required" };
     }
 
@@ -182,13 +162,8 @@ export async function getKbEntries(workspaceId: string): Promise<ActionResult<KB
 
 export async function getKbEntryById(id: string): Promise<ActionResult<KBEntry>> {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (!user || authError) {
+    const user = await getCurrentUser();
+    if (!user) {
       return { success: false, error: "Unauthorized: Active user session required" };
     }
 
