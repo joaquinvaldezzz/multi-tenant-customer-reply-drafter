@@ -3,6 +3,7 @@ import { includeIgnoreFile } from "@eslint/config-helpers";
 import js from "@eslint/js";
 import { configs, plugins, rules } from "eslint-config-airbnb-extended";
 import { rules as prettierConfigRules } from "eslint-config-prettier";
+import perfectionistPlugin from "eslint-plugin-perfectionist";
 import prettierPlugin from "eslint-plugin-prettier";
 import { defineConfig } from "eslint/config";
 
@@ -72,6 +73,119 @@ const typescriptConfig = defineConfig([
   },
 ]);
 
+const perfectionistConfig = defineConfig([
+  {
+    plugins: {
+      perfectionist: perfectionistPlugin,
+    },
+    rules: {
+      "perfectionist/sort-jsx-props": [
+        "error",
+        {
+          type: "natural",
+          groups: [
+            "className",
+            "tw",
+            "style",
+            "id",
+            "name",
+            "data",
+            "src",
+            "for",
+            "type",
+            "placeholder",
+            "href",
+            "value",
+            "title",
+            "alt",
+            "role",
+            "aria",
+            "tabIndex",
+            "callback",
+            "shorthand-prop",
+            "multiline-prop",
+            "unknown",
+          ],
+          customGroups: [
+            {
+              groupName: "className",
+              elementNamePattern: "className",
+            },
+            {
+              groupName: "tw",
+              elementNamePattern: "tw",
+            },
+            {
+              groupName: "style",
+              elementNamePattern: "style",
+            },
+            {
+              groupName: "id",
+              elementNamePattern: "id",
+            },
+            {
+              groupName: "name",
+              elementNamePattern: "name",
+            },
+            {
+              groupName: "data",
+              elementNamePattern: "^data-.+",
+            },
+            {
+              groupName: "src",
+              elementNamePattern: "src",
+            },
+            {
+              groupName: "for",
+              elementNamePattern: "for",
+            },
+            {
+              groupName: "type",
+              elementNamePattern: "type",
+            },
+            {
+              groupName: "placeholder",
+              elementNamePattern: "placeholder",
+            },
+            {
+              groupName: "href",
+              elementNamePattern: "href",
+            },
+            {
+              groupName: "value",
+              elementNamePattern: "value",
+            },
+            {
+              groupName: "title",
+              elementNamePattern: "title",
+            },
+            {
+              groupName: "alt",
+              elementNamePattern: "alt",
+            },
+            {
+              groupName: "role",
+              elementNamePattern: "role",
+            },
+            {
+              groupName: "aria",
+              elementNamePattern: "^aria-.+",
+            },
+            {
+              groupName: "tabIndex",
+              elementNamePattern: "tabIndex",
+            },
+            {
+              groupName: "callback",
+              elementNamePattern: "^on.+",
+            },
+          ],
+        },
+      ],
+    },
+  },
+]);
+
 const prettierConfig = defineConfig([
   // Prettier plugin
   {
@@ -99,6 +213,8 @@ export default defineConfig([
   ...nextConfig,
   // TypeScript config
   ...typescriptConfig,
+  // Perfectionist Config
+  ...perfectionistConfig,
   // Prettier config
   ...prettierConfig,
 ]);
