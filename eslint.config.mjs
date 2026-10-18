@@ -1,6 +1,7 @@
 import path from "node:path";
 import { includeIgnoreFile } from "@eslint/config-helpers";
 import js from "@eslint/js";
+import { plugin as shadcnPlugin } from "@shadcn/lint";
 import { configs, plugins, rules } from "eslint-config-airbnb-extended";
 import { rules as prettierConfigRules } from "eslint-config-prettier";
 import perfectionistPlugin from "eslint-plugin-perfectionist";
@@ -186,6 +187,23 @@ const perfectionistConfig = defineConfig([
   },
 ]);
 
+const shadcnConfig = defineConfig([
+  {
+    name: "shadcn/config",
+    plugins: {
+      shadcn: shadcnPlugin,
+    },
+    rules: {
+      // "shadcn/no-restyle": ["error", { allow: ["layout"] }],
+      "shadcn/no-raw-colors": "error",
+      "shadcn/no-arbitrary-values": ["error", { allow: ["layout"] }],
+      // "shadcn/no-inline-styles": "error",
+      "shadcn/no-unknown-classes": "warn",
+      "shadcn/require-static-classes": "error",
+    },
+  },
+]);
+
 const prettierConfig = defineConfig([
   // Prettier plugin
   {
@@ -215,6 +233,8 @@ export default defineConfig([
   ...typescriptConfig,
   // Perfectionist Config
   ...perfectionistConfig,
+  // shadcn-ui/lint Config
+  ...shadcnConfig,
   // Prettier config
   ...prettierConfig,
 ]);
