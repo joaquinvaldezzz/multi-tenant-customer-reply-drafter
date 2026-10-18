@@ -20,6 +20,7 @@
   "dependencies": {
     "@base-ui/react": "^1.9.0",
     "@daypicker/react": "^10.0.2",
+    "@hookform/resolvers": "^5.9.2",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",
     "@t3-oss/env-nextjs": "^0.13.11",
@@ -32,6 +33,7 @@
     "postgres": "^3.4.9",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "react-hook-form": "^7.90.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
