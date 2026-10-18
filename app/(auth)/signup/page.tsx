@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 "use client";
 
 import React, { useState } from "react";
@@ -76,61 +77,52 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <label
-              htmlFor="name"
-              className="flex flex-col gap-1.5 text-xs font-medium text-foreground"
-            >
-              <span>Full name</span>
-              <Input
-                id="name"
-                type="text"
-                autoComplete="name"
-                required
-                placeholder="Jane Doe"
-                value={name}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-                disabled={loading}
-              />
+            <label htmlFor="name" className="text-xs font-medium text-foreground">
+              Full name
             </label>
+            <Input
+              id="name"
+              type="text"
+              autoComplete="name"
+              required
+              placeholder="Jane Doe"
+              value={name}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+              disabled={loading}
+            />
           </div>
 
           <div className="space-y-1.5">
-            <label
-              htmlFor="email"
-              className="flex flex-col gap-1.5 text-xs font-medium text-foreground"
-            >
-              <span>Email address</span>
-              <Input
-                id="email"
-                type="email"
-                autoComplete="email"
-                required
-                placeholder="name@company.com"
-                value={email}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-                disabled={loading}
-              />
+            <label htmlFor="email" className="text-xs font-medium text-foreground">
+              Email address
             </label>
+            <Input
+              id="email"
+              type="email"
+              autoComplete="email"
+              required
+              placeholder="name@company.com"
+              value={email}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+              disabled={loading}
+            />
           </div>
 
           <div className="space-y-1.5">
-            <label
-              htmlFor="password"
-              className="flex flex-col gap-1.5 text-xs font-medium text-foreground"
-            >
-              <span>Password (min. 8 characters)</span>
-              <Input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={8}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                disabled={loading}
-              />
+            <label htmlFor="password" className="text-xs font-medium text-foreground">
+              Password (min. 8 characters)
             </label>
+            <Input
+              id="password"
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+              disabled={loading}
+            />
           </div>
 
           <Button

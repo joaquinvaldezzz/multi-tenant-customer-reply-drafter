@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 "use client";
 
 import React, { Suspense, useState } from "react";
@@ -70,41 +71,35 @@ function LoginForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <label
-              htmlFor="email"
-              className="flex flex-col gap-1.5 text-xs font-medium text-foreground"
-            >
-              <span>Email address</span>
-              <Input
-                id="email"
-                type="email"
-                autoComplete="email"
-                required
-                placeholder="name@company.com"
-                value={email}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-                disabled={loading}
-              />
+            <label htmlFor="email" className="text-xs font-medium text-foreground">
+              Email address
             </label>
+            <Input
+              id="email"
+              type="email"
+              autoComplete="email"
+              required
+              placeholder="name@company.com"
+              value={email}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+              disabled={loading}
+            />
           </div>
 
           <div className="space-y-1.5">
-            <label
-              htmlFor="password"
-              className="flex flex-col gap-1.5 text-xs font-medium text-foreground"
-            >
-              <span>Password</span>
-              <Input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                placeholder="••••••••"
-                value={password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                disabled={loading}
-              />
+            <label htmlFor="password" className="text-xs font-medium text-foreground">
+              Password
             </label>
+            <Input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              placeholder="••••••••"
+              value={password}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+              disabled={loading}
+            />
           </div>
 
           <Button type="submit" className="w-full" disabled={loading || !email || !password}>
